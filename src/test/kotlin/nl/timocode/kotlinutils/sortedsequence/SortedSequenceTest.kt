@@ -1,8 +1,8 @@
-package nl.timocode.kotlinutils
+package nl.timocode.kotlinutils.sortedsequence
 
-import nl.timocode.kotlinutils.SortedSequence.Factory.asAscendingSortedSequence
-import nl.timocode.kotlinutils.SortedSequence.Factory.asDescendingSortedSequence
-import org.junit.jupiter.api.Assertions.assertEquals
+import nl.timocode.kotlinutils.sortedsequence.SortedSequence.Factory.asAscendingSortedSequence
+import nl.timocode.kotlinutils.sortedsequence.SortedSequence.Factory.asDescendingSortedSequence
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
@@ -22,7 +22,7 @@ class SortedSequenceTest {
         val sequence = sequenceOf(1, 1, 1, 2, 2, 3, 3).asAscendingSortedSequence { it }
         val result = sequence.groupByKey().toList()
 
-        assertEquals(
+        Assertions.assertEquals(
             listOf(
                 1 to listOf(1, 1, 1),
                 2 to listOf(2, 2),
@@ -37,7 +37,7 @@ class SortedSequenceTest {
         val sequence = sequenceOf(1, 2, 3).asAscendingSortedSequence { it }
         val result = sequence.groupByKey().toList()
 
-        assertEquals(
+        Assertions.assertEquals(
             listOf(
                 1 to listOf(1),
                 2 to listOf(2),
@@ -52,7 +52,7 @@ class SortedSequenceTest {
         val sequence = sequenceOf(3, 3, 2, 1, 1).asDescendingSortedSequence { it }
         val result = sequence.groupByKey().toList()
 
-        assertEquals(
+        Assertions.assertEquals(
             listOf(
                 3 to listOf(3, 3),
                 2 to listOf(2),
@@ -78,7 +78,7 @@ class SortedSequenceTest {
 
         val result = seq1.zipByKey(seq2) { key, a, b -> key to (a to b) }.toList()
 
-        assertEquals(
+        Assertions.assertEquals(
             listOf(
                 1 to ("A" to null),
                 2 to (null to 100L),
@@ -106,7 +106,7 @@ class SortedSequenceTest {
 
         val result = seq1.zipByKey(seq2) { key, a, b -> key to (a to b) }.toList()
 
-        assertEquals(
+        Assertions.assertEquals(
             listOf(
                 5 to ("C" to null),
                 4 to (null to 300L),

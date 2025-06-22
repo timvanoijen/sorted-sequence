@@ -1,7 +1,8 @@
-package nl.timocode.kotlinutils
+package nl.timocode.kotlinutils.sortedsequence
 
-import nl.timocode.kotlinutils.SortOrder.ASCENDING
-import nl.timocode.kotlinutils.SortOrder.DESCENDING
+import nl.timocode.kotlinutils.sortedsequence.SortOrder.ASCENDING
+import nl.timocode.kotlinutils.sortedsequence.SortOrder.DESCENDING
+import kotlin.collections.iterator
 
 // TODO: variance
 // TODO: support nullable value types
