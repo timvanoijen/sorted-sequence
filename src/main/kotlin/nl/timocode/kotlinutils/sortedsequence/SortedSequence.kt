@@ -1,123 +1,46 @@
 package nl.timocode.kotlinutils.sortedsequence
 
-import nl.timocode.kotlinutils.sortedsequence.SortOrder.ASCENDING
-import nl.timocode.kotlinutils.sortedsequence.SortOrder.DESCENDING
-import kotlin.collections.iterator
+import nl.timocode.kotlinutils.sortedsequence.SortedKeyValueSequence.Factory.assertSorted
 
 // TODO: variance
 // TODO: support nullable value types
-class SortedSequence<TKey : Comparable<TKey>, TValue> private constructor(
+class SortedSequence<TKey : Comparable<TKey>, TValue>(
     private val innerSequence: Sequence<Pair<TKey, TValue>>,
-    val sortOrder: SortOrder = ASCENDING
-) : Sequence<TValue> {
+    override val sortOrder: SortOrder
+) : SortedKeyValueIteratorProvider<TKey, TValue>, Sequence<TValue> {
 
-    fun iteratorWithKeys(): Iterator<Pair<TKey, TValue>> {
-        return iterator {
-            val innerIterator = innerSequence.iterator()
-            var lastKey: TKey? = null
-            while (innerIterator.hasNext()) {
-                val (key, value) = innerIterator.next()
-                if (lastKey != null) {
-                    if ((sortOrder == ASCENDING && lastKey > key) || (sortOrder == DESCENDING && lastKey < key)) {
-                        throw SortedSequenceException.SequenceNotSortedException()
-                    }
-                }
-                lastKey = key
-                yield(key to value)
-            }
-        }
-    }
+    constructor(
+        sequence: Sequence<TValue>,
+        keySelector: (TValue) -> TKey,
+        sortOrder: SortOrder
+    ) : this(sequence.map { keySelector(it) to it }, sortOrder)
+
+    override fun keyValueIterator() = innerSequence.assertSorted(sortOrder).iterator()
 
     override fun iterator(): Iterator<TValue> {
         return iterator {
-            for ((_, value) in iteratorWithKeys()) {
+            for ((_, value) in keyValueIterator()) {
                 yield(value)
             }
         }
     }
 
-    fun <TValueOut>map(transform: (TValue) -> TValueOut): SortedSequence<TKey, TValueOut> {
-        return innerSequence
-            .map { (key, value) -> key to transform(value) }
-            .let { SortedSequence(it, sortOrder) }
+    fun asSortedKeyValues(): SortedKeyValueSequence<TKey, TValue> {
+        return SortedKeyValueSequence(innerSequence, sortOrder)
     }
-
-    fun groupByKey(): SortedSequence<TKey, Pair<TKey, List<TValue>>> {
-        return SortedSequence(
-            sequence {
-                var currentKey: TKey? = null
-                var currentGroup = mutableListOf<TValue>()
-                val iteratorWithKeys = iteratorWithKeys()
-                while (iteratorWithKeys.hasNext()) {
-                    val (key, value) = iteratorWithKeys.next()
-                    if (currentKey != null && key != currentKey) {
-                        yield(currentKey to (currentKey to currentGroup))
-                        currentGroup = mutableListOf()
-                    }
-                    currentKey = key
-                    currentGroup.add(value)
-                }
-                if (currentKey != null) yield(currentKey to (currentKey to currentGroup))
-            },
-            sortOrder
-        )
-    }
-
-    fun <TValue2, TValueOut>zipByKey(
-        other: SortedSequence<TKey, TValue2>,
-        zipper: (TKey, TValue?, TValue2?) -> TValueOut
-    ): SortedSequence<TKey, TValueOut> {
-        if (sortOrder != other.sortOrder) throw SortedSequenceException.InvalidSortOrderException()
-
-        return SortedSequence(
-            sequence {
-                val iterator1 = iteratorWithKeys()
-                val iterator2 = other.iteratorWithKeys()
-
-                var el1 = iterator1.nextOrNull()
-                var el2 = iterator2.nextOrNull()
-                while (el1 != null || el2 != null) {
-                    val zip = when {
-                        el1 == null -> null to el2
-                        el2 == null -> el1 to null
-                        el1.key < el2.key && sortOrder == ASCENDING -> el1 to null
-                        el1.key < el2.key && sortOrder == DESCENDING -> null to el2
-                        el1.key == el2.key -> el1 to el2
-                        el1.key > el2.key && sortOrder == ASCENDING -> null to el2
-                        el1.key > el2.key && sortOrder == DESCENDING -> el1 to null
-                        else -> throw IllegalStateException("Unreachable code")
-                    }
-                    val key = zip.first?.key ?: zip.second!!.key
-                    val value = zipper(key, zip.first?.value, zip.second?.value)
-                    yield(key to value)
-                    el1 = if (zip.first != null) iterator1.nextOrNull() else el1
-                    el2 = if (zip.second != null) iterator2.nextOrNull() else el2
-                }
-            },
-            sortOrder
-        )
-    }
-
-    private val <A, B>Pair<A, B>.key: A get() = first
-
-    private val <A, B>Pair<A, B>.value: B get() = second
-
-    private fun <T>Iterator<T>.nextOrNull() = if (hasNext()) next() else null
 
     companion object Factory {
-        fun <TKey : Comparable<TKey>, TValue>Sequence<TValue>.asAscendingSortedSequence(
+        fun <TKey : Comparable<TKey>, TValue> Sequence<TValue>.assertSortedBy(
+            sortOrder: SortOrder = SortOrder.ASCENDING,
             keySelector: (TValue) -> TKey
-        ): SortedSequence<TKey, TValue> = asSortedSequence(keySelector, ASCENDING)
-
-        fun <TKey : Comparable<TKey>, TValue>Sequence<TValue>.asDescendingSortedSequence(
-            keySelector: (TValue) -> TKey
-        ): SortedSequence<TKey, TValue> = asSortedSequence(keySelector, DESCENDING)
-
-        fun <TKey : Comparable<TKey>, TValue>Sequence<TValue>.asSortedSequence(
-            keySelector: (TValue) -> TKey,
-            sortOrder: SortOrder
         ): SortedSequence<TKey, TValue> {
-            return SortedSequence(this.map { keySelector(it) to it }, sortOrder)
+            return SortedSequence(this, keySelector, sortOrder)
+        }
+
+        fun <T : Comparable<T>> Sequence<T>.assertSorted(
+            sortOrder: SortOrder = SortOrder.ASCENDING
+        ): SortedSequence<T, T> {
+            return SortedSequence(this, { it }, sortOrder)
         }
     }
 }
