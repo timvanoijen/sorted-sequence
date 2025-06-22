@@ -2,7 +2,6 @@ package nl.timocode.kotlinutils.sortedsequence
 
 import nl.timocode.kotlinutils.sortedsequence.SortOrder.ASCENDING
 import nl.timocode.kotlinutils.sortedsequence.SortOrder.DESCENDING
-import nl.timocode.kotlinutils.sortedsequence.SortedKeyValueSequence
 import nl.timocode.kotlinutils.sortedsequence.SortedKeyValueSequence.Factory.assertSorted
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -79,5 +78,4 @@ class SortedKeyValueSequenceTest {
             transformed.toList()
         )
     }
-
 }

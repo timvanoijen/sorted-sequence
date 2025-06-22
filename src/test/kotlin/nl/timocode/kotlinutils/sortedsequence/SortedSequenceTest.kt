@@ -44,6 +44,4 @@ class SortedSequenceTest {
         val keyValueSequence = sequence.asSortedKeyValues()
         assertEquals(listOf('z' to "az", 'y' to "by", 'x' to "cx"), keyValueSequence.toList())
     }
-
-
 }

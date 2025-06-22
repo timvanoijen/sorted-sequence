@@ -2,7 +2,6 @@ package nl.timocode.kotlinutils.sortedsequence
 
 import nl.timocode.kotlinutils.sortedsequence.SortedKeyValueSequence.Factory.assertSorted
 
-// TODO: support nullable value types
 class SortedSequence<TKey : Comparable<TKey>, out TValue>(
     private val innerSequence: Sequence<Pair<TKey, TValue>>,
     override val sortOrder: SortOrder
