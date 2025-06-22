@@ -3,9 +3,8 @@ package nl.timocode.kotlinutils.sortedsequence
 import nl.timocode.kotlinutils.sortedsequence.SortOrder.ASCENDING
 import nl.timocode.kotlinutils.sortedsequence.SortOrder.DESCENDING
 
-// TODO: variance
 // TODO: support nullable value types
-class SortedKeyValueSequence<TKey : Comparable<TKey>, TValue>(
+class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
     private val innerSequence: Sequence<Pair<TKey, TValue>>,
     override val sortOrder: SortOrder
 ) : SortedKeyValueIteratorProvider<TKey, TValue>, Sequence<Pair<TKey, TValue>> {

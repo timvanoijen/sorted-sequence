@@ -1,6 +1,6 @@
 package nl.timocode.kotlinutils.sortedsequence
 
-interface SortedKeyValueIteratorProvider<TKey : Comparable<TKey>, TValue> {
+interface SortedKeyValueIteratorProvider<TKey : Comparable<TKey>, out TValue> {
     fun keyValueIterator(): Iterator<Pair<TKey, TValue>>
 
     val sortOrder: SortOrder

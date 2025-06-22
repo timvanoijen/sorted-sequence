@@ -2,9 +2,8 @@ package nl.timocode.kotlinutils.sortedsequence
 
 import nl.timocode.kotlinutils.sortedsequence.SortedKeyValueSequence.Factory.assertSorted
 
-// TODO: variance
 // TODO: support nullable value types
-class SortedSequence<TKey : Comparable<TKey>, TValue>(
+class SortedSequence<TKey : Comparable<TKey>, out TValue>(
     private val innerSequence: Sequence<Pair<TKey, TValue>>,
     override val sortOrder: SortOrder
 ) : SortedKeyValueIteratorProvider<TKey, TValue>, Sequence<TValue> {
