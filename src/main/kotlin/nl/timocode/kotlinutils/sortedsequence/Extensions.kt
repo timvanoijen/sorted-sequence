@@ -1,5 +1,9 @@
 package nl.timocode.kotlinutils.sortedsequence
 
+import nl.timocode.kotlinutils.sortedsequence.JoinType.FULL_OUTER_JOIN
+import nl.timocode.kotlinutils.sortedsequence.JoinType.INNER_JOIN
+import nl.timocode.kotlinutils.sortedsequence.JoinType.LEFT_OUTER_JOIN
+import nl.timocode.kotlinutils.sortedsequence.JoinType.RIGHT_OUTER_JOIN
 import nl.timocode.kotlinutils.sortedsequence.SortOrder.ASCENDING
 import nl.timocode.kotlinutils.sortedsequence.SortOrder.DESCENDING
 import nl.timocode.kotlinutils.sortedsequence.SortedKeyValueSequence.Factory.assertSorted
@@ -24,9 +28,63 @@ SortedKeyValueIteratorProvider<TKey, TValue>.groupByKey(): SortedKeyValueSequenc
 }
 
 fun <TKey : Comparable<TKey>, TValue1, TValue2, TValueOut>
-SortedKeyValueIteratorProvider<TKey, TValue1>.zipByKey(
+SortedKeyValueIteratorProvider<TKey, TValue1>.innerJoinByKey(
     other: SortedKeyValueIteratorProvider<TKey, TValue2>,
-    zipper: (TKey, TValue1?, TValue2?) -> TValueOut
+    mergeFn: (TKey, TValue1, TValue2) -> TValueOut
+): SortedSequence<TKey, TValueOut> = mergeByKey(other, INNER_JOIN) {
+        key, a, b ->
+    mergeFn(key, a!!, b!!)
+}
+
+fun <TKey : Comparable<TKey>, TValue1, TValue2>
+SortedKeyValueIteratorProvider<TKey, TValue1>.innerJoinByKey(
+    other: SortedKeyValueIteratorProvider<TKey, TValue2>
+): SortedSequence<TKey, Pair<TValue1, TValue2>> = innerJoinByKey(other) { _, a, b -> a to b }
+
+fun <TKey : Comparable<TKey>, TValue1, TValue2, TValueOut>
+SortedKeyValueIteratorProvider<TKey, TValue1>.leftOuterJoinByKey(
+    other: SortedKeyValueIteratorProvider<TKey, TValue2>,
+    mergeFn: (TKey, TValue1, TValue2?) -> TValueOut
+): SortedSequence<TKey, TValueOut> = mergeByKey(other, LEFT_OUTER_JOIN) {
+        key, a, b ->
+    mergeFn(key, a!!, b)
+}
+
+fun <TKey : Comparable<TKey>, TValue1, TValue2>
+SortedKeyValueIteratorProvider<TKey, TValue1>.leftOuterJoinByKey(
+    other: SortedKeyValueIteratorProvider<TKey, TValue2>
+): SortedSequence<TKey, Pair<TValue1, TValue2?>> = leftOuterJoinByKey(other) { _, a, b -> a to b }
+
+fun <TKey : Comparable<TKey>, TValue1, TValue2, TValueOut>
+SortedKeyValueIteratorProvider<TKey, TValue1>.rightOuterJoinByKey(
+    other: SortedKeyValueIteratorProvider<TKey, TValue2>,
+    mergeFn: (TKey, TValue1?, TValue2) -> TValueOut
+): SortedSequence<TKey, TValueOut> = mergeByKey(other, RIGHT_OUTER_JOIN) {
+        key, a, b ->
+    mergeFn(key, a, b!!)
+}
+
+fun <TKey : Comparable<TKey>, TValue1, TValue2>
+SortedKeyValueIteratorProvider<TKey, TValue1>.rightOuterJoinByKey(
+    other: SortedKeyValueIteratorProvider<TKey, TValue2>
+): SortedSequence<TKey, Pair<TValue1?, TValue2>> = rightOuterJoinByKey(other) { _, a, b -> a to b }
+
+fun <TKey : Comparable<TKey>, TValue1, TValue2, TValueOut>
+SortedKeyValueIteratorProvider<TKey, TValue1>.fullOuterJoinByKey(
+    other: SortedKeyValueIteratorProvider<TKey, TValue2>,
+    mergeFn: (TKey, TValue1?, TValue2?) -> TValueOut
+): SortedSequence<TKey, TValueOut> = mergeByKey(other, FULL_OUTER_JOIN, mergeFn)
+
+fun <TKey : Comparable<TKey>, TValue1, TValue2>
+SortedKeyValueIteratorProvider<TKey, TValue1>.fullOuterJoinByKey(
+    other: SortedKeyValueIteratorProvider<TKey, TValue2>
+): SortedSequence<TKey, Pair<TValue1?, TValue2?>> = fullOuterJoinByKey(other) { _, a, b -> a to b }
+
+fun <TKey : Comparable<TKey>, TValue1, TValue2, TValueOut>
+SortedKeyValueIteratorProvider<TKey, TValue1>.mergeByKey(
+    other: SortedKeyValueIteratorProvider<TKey, TValue2>,
+    joinType: JoinType = FULL_OUTER_JOIN,
+    mergeFn: (TKey, TValue1?, TValue2?) -> TValueOut
 ): SortedSequence<TKey, TValueOut> {
     if (sortOrder != other.sortOrder) throw SortedSequenceException.InvalidSortOrderException()
 
@@ -38,7 +96,7 @@ SortedKeyValueIteratorProvider<TKey, TValue1>.zipByKey(
             var el1 = iterator1.nextOrNull()
             var el2 = iterator2.nextOrNull()
             while (el1 != null || el2 != null) {
-                val zip = when {
+                val pair = when {
                     el1 == null -> null to el2
                     el2 == null -> el1 to null
                     el1.key < el2.key && sortOrder == ASCENDING -> el1 to null
@@ -48,15 +106,28 @@ SortedKeyValueIteratorProvider<TKey, TValue1>.zipByKey(
                     el1.key > el2.key && sortOrder == DESCENDING -> el1 to null
                     else -> throw IllegalStateException("Unreachable code")
                 }
-                val key = zip.first?.key ?: zip.second!!.key
-                val value = zipper(key, zip.first?.value, zip.second?.value)
-                yield(key to value)
-                el1 = if (zip.first != null) iterator1.nextOrNull() else el1
-                el2 = if (zip.second != null) iterator2.nextOrNull() else el2
+                val key = pair.first?.key ?: pair.second!!.key
+
+                if ((pair.first != null || joinType == FULL_OUTER_JOIN || joinType == RIGHT_OUTER_JOIN) &&
+                    (pair.second != null || joinType == FULL_OUTER_JOIN || joinType == LEFT_OUTER_JOIN)
+                ) {
+                    val value = mergeFn(key, pair.first?.value, pair.second?.value)
+                    yield(key to value)
+                }
+
+                el1 = if (pair.first != null) iterator1.nextOrNull() else el1
+                el2 = if (pair.second != null) iterator2.nextOrNull() else el2
             }
         },
         sortOrder
     )
+}
+
+enum class JoinType {
+    FULL_OUTER_JOIN,
+    LEFT_OUTER_JOIN,
+    RIGHT_OUTER_JOIN,
+    INNER_JOIN
 }
 
 private val <A, B>Pair<A, B>.key: A get() = first

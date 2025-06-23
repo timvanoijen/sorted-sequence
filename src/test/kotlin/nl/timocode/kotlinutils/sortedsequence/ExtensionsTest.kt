@@ -1,5 +1,8 @@
 package nl.timocode.kotlinutils.sortedsequence
 
+import nl.timocode.kotlinutils.sortedsequence.JoinType.INNER_JOIN
+import nl.timocode.kotlinutils.sortedsequence.JoinType.LEFT_OUTER_JOIN
+import nl.timocode.kotlinutils.sortedsequence.JoinType.RIGHT_OUTER_JOIN
 import nl.timocode.kotlinutils.sortedsequence.SortOrder.DESCENDING
 import nl.timocode.kotlinutils.sortedsequence.SortedKeyValueSequence.Factory.assertSorted
 import nl.timocode.kotlinutils.sortedsequence.SortedSequence.Factory.assertSorted
@@ -55,7 +58,7 @@ class ExtensionsTest {
     }
 
     @Test
-    fun `zipByKey works correctly for ascending sequences`() {
+    fun `mergeByKey works correctly for ascending sequences`() {
         val seq1 = sequenceOf(
             1 to "A",
             3 to "B",
@@ -68,22 +71,19 @@ class ExtensionsTest {
             4 to 300L
         ).assertSorted()
 
-        val result = seq1.zipByKey(seq2) { key, a, b -> "$key-$a-$b" }.toList()
+        val resultFullOuterJoin = seq1.mergeByKey(seq2) { key, a, b -> "$key-$a-$b" }.toList()
+        val resultLeftOuterJoin = seq1.mergeByKey(seq2, LEFT_OUTER_JOIN) { key, a, b -> "$key-$a-$b" }.toList()
+        val resultRightOuterJoin = seq1.mergeByKey(seq2, RIGHT_OUTER_JOIN) { key, a, b -> "$key-$a-$b" }.toList()
+        val resultInnerJoin = seq1.mergeByKey(seq2, INNER_JOIN) { key, a, b -> "$key-$a-$b" }.toList()
 
-        assertEquals(
-            listOf(
-                "1-A-null",
-                "2-null-100",
-                "3-B-200",
-                "4-null-300",
-                "5-C-null"
-            ),
-            result
-        )
+        assertEquals(listOf("1-A-null", "2-null-100", "3-B-200", "4-null-300", "5-C-null"), resultFullOuterJoin)
+        assertEquals(listOf("1-A-null", "3-B-200", "5-C-null"), resultLeftOuterJoin)
+        assertEquals(listOf("2-null-100", "3-B-200", "4-null-300"), resultRightOuterJoin)
+        assertEquals(listOf("3-B-200"), resultInnerJoin)
     }
 
     @Test
-    fun `zipByKey works correctly for descending sequences`() {
+    fun `mergeByKey works correctly for descending sequences`() {
         val seq1 = sequenceOf(
             5 to "C",
             3 to "B",
@@ -96,27 +96,18 @@ class ExtensionsTest {
             2 to 100L
         ).assertSorted(DESCENDING)
 
-        val result = seq1.zipByKey(seq2) { key, a, b -> "$key-$a-$b" }.toList()
+        val result = seq1.mergeByKey(seq2) { key, a, b -> "$key-$a-$b" }.toList()
 
-        assertEquals(
-            listOf(
-                "5-C-null",
-                "4-null-300",
-                "3-B-200",
-                "2-null-100",
-                "1-A-null"
-            ),
-            result
-        )
+        assertEquals(listOf("5-C-null", "4-null-300", "3-B-200", "2-null-100", "1-A-null"), result)
     }
 
     @Test
-    fun `zipByKey throws InvalidSortOrderException when sequences have different sort orders`() {
+    fun `mergeByKey throws InvalidSortOrderException when sequences have different sort orders`() {
         val seq1 = sequenceOf(1, 2, 3).assertSorted()
         val seq2 = sequenceOf(3, 2, 1).assertSorted(DESCENDING)
 
         assertThrows<SortedSequenceException.InvalidSortOrderException> {
-            seq1.zipByKey(seq2) { key, a, b -> Triple(key, a, b) }.toList()
+            seq1.mergeByKey(seq2) { key, a, b -> Triple(key, a, b) }.toList()
         }
     }
 }
