@@ -44,4 +44,4 @@ jobs:
       run: ./gradlew publish
       env:
         USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        TOKEN: ${{ secrets.SONATYPE_PUBLISH_TOKEN }}
+        PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
