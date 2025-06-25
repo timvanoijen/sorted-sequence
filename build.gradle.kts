@@ -6,7 +6,7 @@ plugins {
     signing
 }
 
-group = "nl.timocode.kotlin-utils"
+group = "io.github.timvanoijen.kotlin-utils"
 version = "1.0-SNAPSHOT"
 
 repositories {
