@@ -25,7 +25,7 @@ class SortedSequenceTest {
         val merged = seq1.mergeByKey(seq2)
         assertEquals(listOf("c1" to null, "b2" to "b3", null to "a4"), merged.toList())
     }
-    
+
     @Test
     fun `merge by key with merge function works correctly`() {
         val seq1 = sequenceOf("a1", "b2").assertSortedBy { it.first() }
@@ -94,7 +94,7 @@ class SortedSequenceTest {
     fun `inner join with merge function works correctly`() {
         val seq1 = sequenceOf("a1", "b2").assertSortedBy { it.first() }
         val seq2 = sequenceOf("b3", "c4").assertSortedBy { it.first() }
-        val joined = seq1.innerJoinByKey(seq2) { _, v1, v2 -> "${v1}${v2}" }
+        val joined = seq1.innerJoinByKey(seq2) { _, v1, v2 -> "${v1}$v2" }
         assertEquals(listOf("b2b3"), joined.toList())
     }
 
@@ -102,7 +102,7 @@ class SortedSequenceTest {
     fun `inner join with merge function works correctly with descending sort order`() {
         val seq1 = sequenceOf("c1", "b2").assertSortedBy(DESCENDING) { it.first() }
         val seq2 = sequenceOf("b3", "a4").assertSortedBy(DESCENDING) { it.first() }
-        val joined = seq1.innerJoinByKey(seq2) { _, v1, v2 -> "${v1}${v2}" }
+        val joined = seq1.innerJoinByKey(seq2) { _, v1, v2 -> "${v1}$v2" }
         assertEquals(listOf("b2b3"), joined.toList())
     }
 
@@ -158,7 +158,7 @@ class SortedSequenceTest {
     fun `right outer join with merge function works correctly`() {
         val seq1 = sequenceOf("a1", "b2").assertSortedBy { it.first() }
         val seq2 = sequenceOf("b3", "c4").assertSortedBy { it.first() }
-        val joined = seq1.rightOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2}" }
+        val joined = seq1.rightOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}$v2" }
         assertEquals(listOf("b2b3", "c4"), joined.toList())
     }
 
@@ -166,7 +166,7 @@ class SortedSequenceTest {
     fun `right outer join with merge function works correctly with descending sort order`() {
         val seq1 = sequenceOf("c1", "b2").assertSortedBy(DESCENDING) { it.first() }
         val seq2 = sequenceOf("b3", "a4").assertSortedBy(DESCENDING) { it.first() }
-        val joined = seq1.rightOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2}" }
+        val joined = seq1.rightOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}$v2" }
         assertEquals(listOf("b2b3", "a4"), joined.toList())
     }
 
@@ -204,6 +204,4 @@ class SortedSequenceTest {
         val keyValueSequence = sequence.asSortedKeyValues()
         assertEquals(listOf('z' to "az", 'y' to "by", 'x' to "cx"), keyValueSequence.toList())
     }
-
-
 }

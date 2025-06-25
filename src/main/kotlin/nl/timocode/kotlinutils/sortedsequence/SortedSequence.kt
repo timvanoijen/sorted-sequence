@@ -45,7 +45,6 @@ class SortedSequence<TKey : Comparable<TKey>, out TValue>(
         return SortedKeyValueSequence(innerSequence, sortOrder)
     }
 
-
     /**
      * Groups values by their sorting key, maintaining sort order.
      *
@@ -261,7 +260,6 @@ class SortedSequence<TKey : Comparable<TKey>, out TValue>(
     ): SortedSequence<TKey, Pair<TValue?, TValue2?>> = rightOuterJoinByKey(other) { _, a, b -> a to b }
 
     companion object Factory {
-
 
         /**
          * Creates a [SortedSequence] from this sequence, asserting that elements are sorted by the given key selector.
