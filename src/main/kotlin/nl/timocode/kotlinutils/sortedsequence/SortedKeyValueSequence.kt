@@ -26,16 +26,6 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
     override val sortOrder: SortOrder
 ) : SortedKeyValueIteratorProvider<TKey, TValue>, Sequence<Pair<TKey, TValue>> {
 
-    /**
-     * Returns an iterator over the key-value pairs in this sequence while verifying the sort order.
-     *
-     * The iterator validates that keys are in the correct order (ascending or descending) as it
-     * traverses the sequence. If a key is found to be out of order, a [SortedSequenceException.SequenceNotSortedException]
-     * is thrown.
-     *
-     * @return An iterator that yields key-value pairs in sorted order
-     * @throws SortedSequenceException.SequenceNotSortedException if the sequence is not properly sorted
-     */
     override fun keyValueIterator(): Iterator<Pair<TKey, TValue>> {
         return iterator {
             val innerIterator = innerSequence.iterator()
@@ -53,13 +43,6 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
         }
     }
 
-    /**
-     * Returns an iterator over the key-value pairs in this sequence.
-     * This implementation delegates to [keyValueIterator] to ensure proper sort order validation.
-     *
-     * @return An iterator that yields key-value pairs in sorted order
-     * @throws SortedSequenceException.SequenceNotSortedException if the sequence is not properly sorted
-     */
     override fun iterator(): Iterator<Pair<TKey, TValue>> = keyValueIterator()
 
     /**
@@ -295,14 +278,14 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
 
     companion object Factory {
         /**
-         * Extension function to convert a regular sequence to a sorted sequence.
-         * Throws [SortedSequenceException.SequenceNotSortedException] if sequence is not sorted.
+         * Creates a [SortedKeyValueSequence] from this sequence, asserting that elements are sorted by their key.
          *
          * Example:
          * ```
          * val sorted = sequenceOf(1 to "a", 2 to "b").assertSorted()
          * ```
-         *
+         * @param TKey The type of keys in the sequence, must be comparable
+         * @param TValue The type of values in the sequence
          * @param sortOrder The sort order to verify against (default: ASCENDING)
          * @return A sorted sequence wrapper
          */
