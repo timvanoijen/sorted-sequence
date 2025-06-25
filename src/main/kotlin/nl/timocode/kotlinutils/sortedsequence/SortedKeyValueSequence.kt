@@ -26,7 +26,6 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
     override val sortOrder: SortOrder
 ) : SortedKeyValueIteratorProvider<TKey, TValue>, Sequence<Pair<TKey, TValue>> {
 
-
     /**
      * Returns an iterator over the key-value pairs in this sequence while verifying the sort order.
      *
@@ -53,7 +52,6 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
             }
         }
     }
-
 
     /**
      * Returns an iterator over the key-value pairs in this sequence.
@@ -103,7 +101,7 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val merged = seq1.mergeByKey(seq2) { key, v1, v2 -> "$v1$v2" }
+     * val merged = seq1.mergeByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
      * // Results in: (1 to "ax", 2 to "b", 3 to "z")
      * ```
      *
@@ -146,7 +144,7 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val joined = seq1.fullOuterJoinByKey(seq2) { key, v1, v2 -> "$v1$v2" }
+     * val joined = seq1.fullOuterJoinByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
      * // Results in: (1 to "ax", 2 to "b", 3 to "z")
      * ```
      *
@@ -224,7 +222,7 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val joined = seq1.leftOuterJoinByKey(seq2) { key, v1, v2 -> "$v1$v2" }
+     * val joined = seq1.leftOuterJoinByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}$v2" }
      * // Results in: (1 to "ax", 2 to "b")
      * ```
      *
@@ -263,7 +261,7 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val joined = seq1.rightOuterJoinByKey(seq2) { key, v1, v2 -> "$v1$v2" }
+     * val joined = seq1.rightOuterJoinByKey(seq2) { key, v1, v2 -> "$v1${v2 ?: ""}" }
      * // Results in: (1 to "ax", 3 to "z")
      * ```
      *
