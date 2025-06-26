@@ -1,13 +1,12 @@
 plugins {
     kotlin("jvm") version "2.1.20"
-    `maven-publish`
     id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
     id("org.jetbrains.dokka") version "2.0.0"
-    signing
+    id("com.vanniktech.maven.publish") version "0.33.0"
 }
 
-group = "io.github.timvanoijen.kotlin-utils"
-version = "1.0-SNAPSHOT"
+group = "io.github.timvanoijen.kotlin"
+version = "0.0.2-SNAPSHOT"
 
 repositories {
     mavenCentral()
@@ -25,52 +24,36 @@ kotlin {
     jvmToolchain(21)
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
+mavenPublishing {
+    publishToMavenCentral()
 
-            pom {
-                name.set("Kotlin Sorted Sequences")
-                description.set("Kotlin library to work with sorted sequences. This library provides a number of utility functions to make working with sorted sequences easier, such as grouping, merging, and joining sorted sequences.")
-                url.set("https://github.com/timvanoijen/sorted-sequence")
+    signAllPublications()
 
-                licenses {
-                    license {
-                        name.set("MIT License")
-                        url.set("https://opensource.org/licenses/MIT")
-                    }
-                }
+    coordinates(group.toString(), "sorted-sequence", version.toString())
 
-                developers {
-                    developer {
-                        id.set("timvanoijen")
-                        name.set("Tim van Oijen")
-                        email.set("timvanoijen@gmail.com")
-                    }
-                }
-
-                scm {
-                    connection.set("scm:git:git://github.com/timvanoijen/sorted-sequence.git")
-                    developerConnection.set("scm:git:ssh://github.com/timvanoijen/sorted-sequence.git")
-                    url.set("https://github.com/timvanoijen/sorted-sequence")
-                }
+    pom {
+        name.set("Kotlin Sorted Seuences")
+        description.set("A Kotlin library for sorted sequences.")
+        inceptionYear.set("2025")
+        url.set("https://github.com/timvanoijen/sorted-sequence/")
+        licenses {
+            license {
+                name.set("MIT License")
+                url.set("https://opensource.org/licenses/MIT")
+                distribution.set("https://opensource.org/licenses/MIT")
             }
         }
-    }
-
-    repositories {
-        maven {
-            name = "OSSRH"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
-            credentials {
-                username = System.getenv("USERNAME") ?: ""
-                password = System.getenv("PASSWORD") ?: ""
+        developers {
+            developer {
+                id.set("timvanoijen")
+                name.set("Tim van Oijen")
+                url.set("https://github.com/timvanoijen/")
             }
         }
+        scm {
+            url.set("https://github.com/timvanoijen/sorted-sequence/")
+            connection.set("scm:git:git://github.com/timvanoijen/sorted-sequence.git")
+            developerConnection.set("scm:git:ssh://git@github.com/timvanoijen/sorted-sequence.git")
+        }
     }
-}
-
-signing {
-    sign(publishing.publications["mavenJava"])
 }
