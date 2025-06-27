@@ -1,3 +1,6 @@
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.KotlinJvm
+
 plugins {
     kotlin("jvm") version "2.1.20"
     id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
@@ -6,7 +9,7 @@ plugins {
 }
 
 group = "io.github.timvanoijen.kotlin"
-version = "0.0.5-SNAPSHOT"
+version = file("version").readText().trim()
 
 repositories {
     mavenCentral()
@@ -30,6 +33,13 @@ mavenPublishing {
     signAllPublications()
 
     coordinates(group.toString(), "sorted-sequence", version.toString())
+
+    configure(
+        KotlinJvm(
+            javadocJar = JavadocJar.Dokka("dokkaHtml"),
+            sourcesJar = true,
+        )
+    )
 
     pom {
         name.set("Kotlin Sorted Seuences")
@@ -57,3 +67,17 @@ mavenPublishing {
         }
     }
 }
+
+tasks.register("incrementMinorVersion") {
+    doLast {
+        val versionFile = file("version")
+        val currentVersion = versionFile.readText().trim()
+        val versionParts = currentVersion.split(".")
+        val major = versionParts[0]
+        val minor = versionParts[1].toInt()
+        val newVersion = "$major.${minor + 1}.0-SNAPSHOT"
+        versionFile.writeText(newVersion)
+    }
+}
+
+
