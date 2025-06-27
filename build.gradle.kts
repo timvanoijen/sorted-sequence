@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "io.github.timvanoijen.kotlin"
-version = "0.0.4"
+version = "0.0.4"-SNAPSHOT
 
 repositories {
     mavenCentral()
