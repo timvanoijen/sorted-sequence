@@ -45,7 +45,7 @@ jobs:
         git config user.email "timvanoijen@gmail.com"
         git add build.gradle.kts
         git commit -m "Update version to ${VERSION} based on GitHub release"
-        git push
+        git push origin HEAD:main
 
     - name: Build with Gradle
       run: ./gradlew build
@@ -70,4 +70,4 @@ jobs:
         git config user.email "timvanoijen@gmail.com"
         git add build.gradle.kts
         git commit -m "Update version to ${VERSION}-SNAPSHOT based on GitHub release"
-        git push
+        git push origin HEAD:main
