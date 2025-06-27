@@ -9,7 +9,7 @@ Add the dependency to your project:
 ```kotlin
 // build.gradle.kts
 dependencies {
-    implementation("nl.timocode.kotlin-utils:sortedsequence:1.0-SNAPSHOT")
+    implementation("io.github.timvanoijen.kotlin:sorted-sequence:<latest version>")
 }
 ```
 
