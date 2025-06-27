@@ -37,7 +37,7 @@ mavenPublishing {
     configure(
         KotlinJvm(
             javadocJar = JavadocJar.Dokka("dokkaHtml"),
-            sourcesJar = true,
+            sourcesJar = true
         )
     )
 
@@ -79,5 +79,3 @@ tasks.register("incrementMinorVersion") {
         versionFile.writeText(newVersion)
     }
 }
-
-
