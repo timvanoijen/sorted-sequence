@@ -59,6 +59,5 @@ jobs:
         git config user.name "Tim van Oijen"
         git config user.email "timvanoijen@gmail.com"
         git add version
-        git add README.md
-        git commit -m "Update versions after Github release ${VERSION}"
+        git commit -m "Update version after Github release ${VERSION}"
         git push origin HEAD:main
