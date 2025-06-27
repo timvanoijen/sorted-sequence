@@ -1,4 +1,4 @@
-name: Gradle Release and publish
+name: Gradle release and publish
 
 on:
   release:
@@ -58,6 +58,6 @@ jobs:
       run: |
         git config user.name "Tim van Oijen"
         git config user.email "timvanoijen@gmail.com"
-        git add build.gradle.kts
-        git commit -m "Update version to ${VERSION}-SNAPSHOT based on GitHub release"
+        git add version
+        git commit -m "Update version after Github release ${VERSION}"
         git push origin HEAD:main
