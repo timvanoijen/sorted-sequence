@@ -5,7 +5,7 @@ on:
     types: [created]
 
 jobs:
-  build:
+  releaseAndPublish:
 
     runs-on: ubuntu-latest
     permissions:
@@ -33,19 +33,9 @@ jobs:
       id: extract_version
       run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
 
-    - name: Update version in build.gradle.kts
+    - name: Update version in version file
       run: |
-          sed -i "s/^version = .*/version = \"${VERSION}\"/" build.gradle.kts
-
-    - name: Commit version change
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        git config user.name "Tim van Oijen"
-        git config user.email "timvanoijen@gmail.com"
-        git add build.gradle.kts
-        git commit -m "Update version to ${VERSION} based on GitHub release"
-        git push origin HEAD:main
+          echo $VERSION > version
 
     - name: Build with Gradle
       run: ./gradlew build
@@ -58,9 +48,9 @@ jobs:
     #    ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.ORG_GRADLE_PROJECT_signingInMemoryKey }}
     #    ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.ORG_GRADLE_PROJECT_signingInMemoryKeyPassword }}
         
-    - name: Postfix version with -SNAPSHOT in build.gradle.kts
+    - name: Increment minor version
       run: |
-        sed -i "s/^version = \"${VERSION}\"/version = \"${VERSION}\"-SNAPSHOT/" build.gradle.kts
+        run: ./gradlew incrementMinorVersion
 
     - name: Commit version change
       env:
