@@ -36,6 +36,8 @@ jobs:
           sed -i "s/^version = .*/version = \"${VERSION}\"/" build.gradle.kts
 
     - name: Commit version change
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         git config user.name "Tim van Oijen"
         git config user.email "timvanoijen@gmail.com"
@@ -59,6 +61,8 @@ jobs:
         sed -i "s/^version = \"${VERSION}\"/version = \"${VERSION}\"-SNAPSHOT/" build.gradle.kts
 
     - name: Commit version change
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         git config user.name "Tim van Oijen"
         git config user.email "timvanoijen@gmail.com"
