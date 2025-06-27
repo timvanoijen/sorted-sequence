@@ -1,4 +1,4 @@
-name: Gradle Release and publish
+name: Gradle release and publish
 
 on:
   release:
