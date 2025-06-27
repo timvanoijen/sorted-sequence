@@ -58,6 +58,7 @@ jobs:
       run: |
         git config user.name "Tim van Oijen"
         git config user.email "timvanoijen@gmail.com"
-        git add build.gradle.kts
-        git commit -m "Update version to ${VERSION}-SNAPSHOT based on GitHub release"
+        git add version
+        git add README.md
+        git commit -m "Update versions after Github release ${VERSION}"
         git push origin HEAD:main
