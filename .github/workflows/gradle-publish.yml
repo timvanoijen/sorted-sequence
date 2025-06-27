@@ -8,6 +8,7 @@ jobs:
   releaseAndPublish:
 
     runs-on: ubuntu-latest
+    environment: admin
     permissions:
       contents: write
       packages: write
