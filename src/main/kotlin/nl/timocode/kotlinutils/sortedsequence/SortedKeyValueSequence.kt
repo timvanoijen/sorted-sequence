@@ -77,8 +77,23 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> private constr
      *
      * @return A new sorted sequence with grouped values
      */
-    fun groupByKey(): SortedKeyValueSequence<TKey, List<TValue>> =
-        internalGroupByKey().assumeSorted(sortOrder)
+    fun groupByKey(): SortedKeyValueSequence<TKey, List<TValue>> {
+        return sequence {
+            var currentKey: TKey? = null
+            var currentGroup = mutableListOf<TValue>()
+            val keyValueIterator = iterator()
+            while (keyValueIterator.hasNext()) {
+                val (key, value) = keyValueIterator.next()
+                if (currentKey != null && key != currentKey) {
+                    yield(currentKey to currentGroup)
+                    currentGroup = mutableListOf()
+                }
+                currentKey = key
+                currentGroup.add(value)
+            }
+            if (currentKey != null) yield(currentKey to currentGroup)
+        }.assumeSorted(sortOrder)
+    }
 
     /**
      * Merges this sequence with another sorted sequence based on matching keys.
@@ -100,8 +115,40 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> private constr
         other: SortedKeyValueIteratorProvider<TKey, TValue2>,
         joinType: JoinType = FULL_OUTER_JOIN,
         mergeFn: (TKey, TValue?, TValue2?) -> TValueOut
-    ): SortedKeyValueSequence<TKey, TValueOut> =
-        internalMergeByKey(other, joinType, mergeFn).assumeSorted(sortOrder)
+    ): SortedKeyValueSequence<TKey, TValueOut> {
+        if (sortOrder != other.sortOrder) throw SortedSequenceException.InvalidSortOrderException()
+
+        return sequence {
+            val iterator1 = keyValueIterator()
+            val iterator2 = other.keyValueIterator()
+
+            var el1 = iterator1.nextOrNull()
+            var el2 = iterator2.nextOrNull()
+            while (el1 != null || el2 != null) {
+                val pair = when {
+                    el1 == null -> null to el2
+                    el2 == null -> el1 to null
+                    el1.key < el2.key && sortOrder == ASCENDING -> el1 to null
+                    el1.key < el2.key && sortOrder == DESCENDING -> null to el2
+                    el1.key == el2.key -> el1 to el2
+                    el1.key > el2.key && sortOrder == ASCENDING -> null to el2
+                    el1.key > el2.key && sortOrder == DESCENDING -> el1 to null
+                    else -> throw IllegalStateException("Unreachable code")
+                }
+                val key = pair.first?.key ?: pair.second!!.key
+
+                if ((pair.first != null || joinType == FULL_OUTER_JOIN || joinType == RIGHT_OUTER_JOIN) &&
+                    (pair.second != null || joinType == FULL_OUTER_JOIN || joinType == LEFT_OUTER_JOIN)
+                ) {
+                    val value = mergeFn(key, pair.first?.value, pair.second?.value)
+                    yield(key to value)
+                }
+
+                el1 = if (pair.first != null) iterator1.nextOrNull() else el1
+                el2 = if (pair.second != null) iterator2.nextOrNull() else el2
+            }
+        }.assumeSorted(sortOrder)
+    }
 
     /**
      * Merges this sequence with another sorted sequence using default pairing of values.
@@ -306,4 +353,10 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> private constr
             return SortedKeyValueSequence(this, sortOrder, doVerifySortOrder = false)
         }
     }
+
+    private val <A, B>Pair<A, B>.key: A get() = first
+
+    private val <A, B>Pair<A, B>.value: B get() = second
+
+    private fun <T>Iterator<T>.nextOrNull() = if (hasNext()) next() else null
 }
