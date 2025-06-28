@@ -1,4 +1,4 @@
-package nl.timocode.kotlinutils.sortedsequence
+package io.timvanoijen.github.kotlin.sortedsequence
 
 enum class JoinType {
     FULL_OUTER_JOIN,

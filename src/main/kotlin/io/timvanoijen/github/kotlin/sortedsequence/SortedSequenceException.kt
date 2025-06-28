@@ -1,4 +1,4 @@
-package nl.timocode.kotlinutils.sortedsequence
+package io.timvanoijen.github.kotlin.sortedsequence
 
 sealed class SortedSequenceException(
     message: String
