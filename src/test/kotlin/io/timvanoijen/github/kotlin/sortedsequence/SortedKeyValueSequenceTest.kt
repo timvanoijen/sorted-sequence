@@ -1,8 +1,8 @@
-package nl.timocode.kotlinutils.sortedsequence
+package io.timvanoijen.github.kotlin.sortedsequence
 
-import nl.timocode.kotlinutils.sortedsequence.SortOrder.ASCENDING
-import nl.timocode.kotlinutils.sortedsequence.SortOrder.DESCENDING
-import nl.timocode.kotlinutils.sortedsequence.SortedKeyValueSequence.Factory.assertSorted
+import io.timvanoijen.github.kotlin.sortedsequence.SortOrder.ASCENDING
+import io.timvanoijen.github.kotlin.sortedsequence.SortOrder.DESCENDING
+import io.timvanoijen.github.kotlin.sortedsequence.SortedKeyValueSequence.Factory.assertSorted
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows

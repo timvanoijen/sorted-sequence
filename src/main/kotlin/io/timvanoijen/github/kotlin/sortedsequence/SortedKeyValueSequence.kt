@@ -1,11 +1,11 @@
-package nl.timocode.kotlinutils.sortedsequence
+package io.timvanoijen.github.kotlin.sortedsequence
 
-import nl.timocode.kotlinutils.sortedsequence.JoinType.FULL_OUTER_JOIN
-import nl.timocode.kotlinutils.sortedsequence.JoinType.INNER_JOIN
-import nl.timocode.kotlinutils.sortedsequence.JoinType.LEFT_OUTER_JOIN
-import nl.timocode.kotlinutils.sortedsequence.JoinType.RIGHT_OUTER_JOIN
-import nl.timocode.kotlinutils.sortedsequence.SortOrder.ASCENDING
-import nl.timocode.kotlinutils.sortedsequence.SortOrder.DESCENDING
+import io.timvanoijen.github.kotlin.sortedsequence.JoinType.FULL_OUTER_JOIN
+import io.timvanoijen.github.kotlin.sortedsequence.JoinType.INNER_JOIN
+import io.timvanoijen.github.kotlin.sortedsequence.JoinType.LEFT_OUTER_JOIN
+import io.timvanoijen.github.kotlin.sortedsequence.JoinType.RIGHT_OUTER_JOIN
+import io.timvanoijen.github.kotlin.sortedsequence.SortOrder.ASCENDING
+import io.timvanoijen.github.kotlin.sortedsequence.SortOrder.DESCENDING
 
 /**
  * Represents a sequence of key-value pairs that are sorted by key.

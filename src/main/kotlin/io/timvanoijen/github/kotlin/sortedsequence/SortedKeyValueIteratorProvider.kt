@@ -1,4 +1,4 @@
-package nl.timocode.kotlinutils.sortedsequence
+package io.timvanoijen.github.kotlin.sortedsequence
 
 interface SortedKeyValueIteratorProvider<TKey : Comparable<TKey>, out TValue> {
 
