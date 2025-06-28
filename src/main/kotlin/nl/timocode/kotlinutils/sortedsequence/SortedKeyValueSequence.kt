@@ -18,15 +18,17 @@ import nl.timocode.kotlinutils.sortedsequence.SortOrder.DESCENDING
  *
  * @param TKey The type of keys in the sequence, must be comparable
  * @param TValue The type of values in the sequence
- * @property innerSequence The backing sequence of key-value pairs
  * @property sortOrder The sort order (ascending/descending) of the sequence
  */
-class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
+class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> private constructor(
     private val innerSequence: Sequence<Pair<TKey, TValue>>,
-    override val sortOrder: SortOrder
+    override val sortOrder: SortOrder,
+    private val doVerifySortOrder: Boolean
 ) : SortedKeyValueIteratorProvider<TKey, TValue>, Sequence<Pair<TKey, TValue>> {
 
     override fun keyValueIterator(): Iterator<Pair<TKey, TValue>> {
+        if (!doVerifySortOrder) return innerSequence.iterator()
+
         return iterator {
             val innerIterator = innerSequence.iterator()
             var lastKey: TKey? = null
@@ -59,7 +61,8 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
      * @return A new sorted sequence with transformed values
      */
     fun <TValueOut>mapValues(transform: (TValue) -> TValueOut): SortedKeyValueSequence<TKey, TValueOut> {
-        return SortedKeyValueSequence(innerSequence.map { it.first to transform(it.second) }, sortOrder)
+        return map { it.first to transform(it.second) }
+            .assumeSorted(sortOrder)
     }
 
     /**
@@ -75,7 +78,7 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
      * @return A new sorted sequence with grouped values
      */
     fun groupByKey(): SortedKeyValueSequence<TKey, List<TValue>> =
-        SortedKeyValueSequence(internalGroupByKey(), sortOrder)
+        internalGroupByKey().assumeSorted(sortOrder)
 
     /**
      * Merges this sequence with another sorted sequence based on matching keys.
@@ -98,7 +101,7 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
         joinType: JoinType = FULL_OUTER_JOIN,
         mergeFn: (TKey, TValue?, TValue2?) -> TValueOut
     ): SortedKeyValueSequence<TKey, TValueOut> =
-        SortedKeyValueSequence(internalMergeByKey(other, joinType, mergeFn), sortOrder)
+        internalMergeByKey(other, joinType, mergeFn).assumeSorted(sortOrder)
 
     /**
      * Merges this sequence with another sorted sequence using default pairing of values.
@@ -292,7 +295,15 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue>(
         fun <TKey : Comparable<TKey>, TValue> Sequence<Pair<TKey, TValue>>.assertSorted(
             sortOrder: SortOrder = ASCENDING
         ): SortedKeyValueSequence<TKey, TValue> {
-            return SortedKeyValueSequence(this, sortOrder)
+            return SortedKeyValueSequence(this, sortOrder, doVerifySortOrder = true)
+        }
+
+        // Internal helper function to map a sequence of key-value pairs and a sort order to a
+        // SortedKeyValueSequence that does not verify the sort order.
+        internal fun <TKey : Comparable<TKey>, TValue> Sequence<Pair<TKey, TValue>>.assumeSorted(
+            sortOrder: SortOrder = ASCENDING
+        ): SortedKeyValueSequence<TKey, TValue> {
+            return SortedKeyValueSequence(this, sortOrder, doVerifySortOrder = false)
         }
     }
 }
