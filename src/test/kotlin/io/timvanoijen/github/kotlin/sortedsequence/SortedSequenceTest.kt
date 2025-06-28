@@ -179,19 +179,29 @@ class SortedSequenceTest {
     @Test
     fun `group by key works correctly`() {
         val sequence = sequenceOf(1, 2, 2, 3).assertSorted()
-
         val grouped = sequence.groupByKey()
-
         assertEquals(listOf(listOf(1), listOf(2, 2), listOf(3)), grouped.toList())
     }
 
     @Test
     fun `group by key works correctly with descending sort order`() {
         val sequence = sequenceOf(3, 2, 2, 1).assertSorted(DESCENDING)
-
         val grouped = sequence.groupByKey()
-
         assertEquals(listOf(listOf(3), listOf(2, 2), listOf(1)), grouped.toList())
+    }
+
+    @Test
+    fun `distinctByKey works correctly`() {
+        val sequence = sequenceOf(1, 1, 2).assertSorted()
+        val distinct = sequence.distinctByKey()
+        assertEquals(listOf(1, 2), distinct.toList())
+    }
+
+    @Test
+    fun `distinctByKey works correctly with descending sort order`() {
+        val sequence = sequenceOf(2, 1, 1).assertSorted(DESCENDING)
+        val distinct = sequence.distinctByKey()
+        assertEquals(listOf(2, 1), distinct.toList())
     }
 
     @Test
