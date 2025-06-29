@@ -66,6 +66,30 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> private constr
     }
 
     /**
+     * Returns a new sequence containing only the first occurrence of each key.
+     *
+     * Example:
+     * ```
+     * val sequence = sequenceOf(1 to "a", 1 to "b", 2 to "c").assertSorted()
+     * val distinct = sequence.distinctByKey()
+     * // Results in: (1 to "a", 2 to "c")
+     * ```
+     *
+     * @return A new sorted sequence with duplicate keys removed
+     */
+    fun distinctByKey(): SortedKeyValueSequence<TKey, TValue> {
+        return sequence {
+            var curKey: TKey? = null
+            keyValueIterator().forEach { kvp ->
+                if (kvp.key != curKey) {
+                    yield(kvp)
+                    curKey = kvp.key
+                }
+            }
+        }.assumeSorted(sortOrder)
+    }
+
+    /**
      * Groups values by their keys, maintaining sort order.
      *
      * Example:

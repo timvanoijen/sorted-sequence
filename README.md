@@ -79,10 +79,19 @@ val upperCase = sequence.mapValues { it.uppercase() }
 Implemented for both `SortedSequence` and `SortedKeyValueSequence`:
 
 ```kotlin
-// Group duplicate elements
 val sequence = sequenceOf(1, 1, 1, 2, 2, 3, 3).assertSorted()
 val grouped = sequence.groupByKey().toList()
-// Results in: [(1, [1, 1, 1]), (2, [2, 2]), (3, [3, 3])]
+// Results in: [[1, 1, 1], [2, 2], [3, 3]]
+```
+
+## Distinct (deduplication)
+
+Implemented for both `SortedSequence` and `SortedKeyValueSequence`, without the need to keep all previously seen elements in memory:
+
+```kotlin
+val sequence = sequenceOf(2, 1, 1).assertSorted(DESCENDING)
+val distinct = sequence.distinctByKey()
+// Results in: [2, 1]
 ```
 
 ## Join Operations

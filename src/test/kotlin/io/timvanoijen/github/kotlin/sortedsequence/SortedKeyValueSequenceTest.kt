@@ -204,6 +204,20 @@ class SortedKeyValueSequenceTest {
     }
 
     @Test
+    fun `distinctByKey works correctly`() {
+        val sequence = sequenceOf(1 to "a", 1 to "b", 2 to "c").assertSorted()
+        val distinct = sequence.distinctByKey()
+        assertEquals(listOf(1 to "a", 2 to "c"), distinct.toList())
+    }
+
+    @Test
+    fun `distinctByKey works correctly with descending sort order`() {
+        val sequence = sequenceOf(2 to "c", 1 to "b", 1 to "a").assertSorted(DESCENDING)
+        val distinct = sequence.distinctByKey()
+        assertEquals(listOf(2 to "c", 1 to "b"), distinct.toList())
+    }
+
+    @Test
     fun `creating descending SortedKeyValueSequence works correctly`() {
         val sequence = sequenceOf(
             3 to "a",

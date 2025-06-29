@@ -55,6 +55,21 @@ class SortedSequence<TKey : Comparable<TKey>, out TValue> private constructor(
         SortedSequence(innerSortedKeyValueSequence.groupByKey())
 
     /**
+     * Returns a new sequence containing only the first occurrence of each key.
+     *
+     * Example:
+     * ```
+     * val sequence = sequenceOf(1, 1, 2).assertSorted()
+     * val distinct = sequence.distinctByKey()
+     * // Results in: (1, 2)
+     * ```
+     *
+     * @return A new sorted sequence with duplicate keys removed
+     */
+    fun distinctByKey(): SortedSequence<TKey, TValue> =
+        SortedSequence(innerSortedKeyValueSequence.distinctByKey())
+
+    /**
      * Merges this sequence with another sorted sequence based on matching keys.
      *
      * Example:
