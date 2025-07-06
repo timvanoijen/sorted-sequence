@@ -55,12 +55,62 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      * // Results in: (1 to "A", 2 to "B")
      * ```
      *
-     * @param transform The function to transform each value
+     * @param transformFn The function to transform each value
      * @return A new sorted sequence with transformed values
      */
-    fun <TValueOut>mapValues(transform: (TValue) -> TValueOut): SortedKeyValueSequence<TKey, TValueOut> {
-        return map { it.first to transform(it.second) }
-            .assumeSorted(sortOrder)
+    fun <TValueOut>mapValues(transformFn: (TValue) -> TValueOut): SortedKeyValueSequence<TKey, TValueOut> {
+        return withSortingPreserved { map { it.first to transformFn(it.second) } }
+    }
+
+    /**
+     * Filters key-value pairs based on their key using the provided filter function.
+     *
+     * Example:
+     * ```
+     * val sequence = sequenceOf(1 to "a", 2 to "b", 3 to "c").assertSorted()
+     * val filtered = sequence.filterByKey { it > 1 }
+     * // Results in: (2 to "b", 3 to "c")
+     * ```
+     *
+     * @param filterFn The predicate to test values against
+     * @return A new sorted sequence containing only the key-value pairs whose keys match the filter
+     */
+    fun filterByKey(filterFn: (TKey) -> Boolean): SortedKeyValueSequence<TKey, TValue> {
+        return filter { (key, _) -> filterFn(key) }
+    }
+
+    /**
+     * Filters key-value pairs based on their value using the provided filter function.
+     *
+     * Example:
+     * ```
+     * val sequence = sequenceOf(1 to "a", 2 to "b", 3 to "c").assertSorted()
+     * val filtered = sequence.filterByValue { it == "b" }
+     * // Results in: (2 to "b")
+     * ```
+     *
+     * @param filterFn The predicate to test values against
+     * @return A new sorted sequence containing only the key-value pairs whose values match the filter
+     */
+    fun filterByValue(filterFn: (TValue) -> Boolean): SortedKeyValueSequence<TKey, TValue> {
+        return filter { (_, value) -> filterFn(value) }
+    }
+
+    /**
+     * Filters key-value pairs using the provided filter function.
+     *
+     * Example:
+     * ```
+     * val sequence = sequenceOf(1 to "a", 2 to "b", 3 to "c").assertSorted()
+     * val filtered = sequence.filter { (key, value) -> key > 1 && value == "b" }
+     * // Results in: (2 to "b")
+     * ```
+     *
+     * @param filterFn The predicate to test values against
+     * @return A new sorted sequence containing only the pairs that match the filter
+     */
+    fun filter(filterFn: (Pair<TKey, TValue>) -> Boolean): SortedKeyValueSequence<TKey, TValue> {
+        return withSortingPreserved { innerSequence.filter(filterFn) }
     }
 
     /**
@@ -346,6 +396,11 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
         other: SortedKeyValueIteratorProvider<TKey, TValue2>
     ): SortedKeyValueSequence<TKey, Pair<TValue?, TValue2?>> = rightOuterJoinByKey(other) { _, a, b -> a to b }
 
+    // Applies a transformation to the sequence into another sequence, assuming the sort order is preserved.
+    private fun <TValue2> withSortingPreserved(
+        operation: (Sequence<Pair<TKey, TValue>>) -> Sequence<Pair<TKey, TValue2>>
+    ): SortedKeyValueSequence<TKey, TValue2> = operation(this).assumeSorted(sortOrder)
+    
     companion object Factory {
         /**
          * Creates a [SortedKeyValueSequence] from this sequence, asserting that elements are sorted by their key.

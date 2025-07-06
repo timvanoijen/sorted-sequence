@@ -40,6 +40,42 @@ class SortedSequence<TKey : Comparable<TKey>, out TValue> internal constructor(
     fun asSortedKeyValues(): SortedKeyValueSequence<TKey, TValue> = innerSortedKeyValueSequence
 
     /**
+     * Filters the sequence to only include elements whose keys match the given predicate.
+     *
+     * Example:
+     * ```
+     * val sequence = sequenceOf("a1", "b2", "c3").assertSortedBy { it.first() }
+     * val filtered = sequence.filterByKey { it != 'b' }
+     * // Results in: ("a1", "c3")
+     * ```
+     *
+     * @param filterFn The predicate to test keys against
+     * @return A new sorted sequence containing only elements with matching keys
+     */
+    fun filterByKey(filterFn: (TKey) -> Boolean): SortedSequence<TKey, TValue> {
+        return SortedSequence(innerSortedKeyValueSequence.filterByKey(filterFn))
+    }
+
+    /**
+     * Filters the sequence to only include elements whose values match the given predicate.
+     *
+     * Example:
+     * ```
+     * val sequence = sequenceOf("a1", "b2", "c3").assertSortedBy { it.first() }
+     * val filtered = sequence.filterByValue { it.endsWith("1") }
+     * // Results in: ("a1")
+     * ```
+     *
+     * @param filterFn The predicate to test values against
+     * @return A new sorted sequence containing only elements with matching values
+     */
+    fun filterByValue(filterFn: (TValue) -> Boolean): SortedSequence<TKey, TValue> {
+        return SortedSequence(innerSortedKeyValueSequence.filterByValue(filterFn))
+    }
+
+    fun filter(filterFn: (TValue) -> Boolean) = filterByValue(filterFn)
+    
+    /**
      * Groups values by their sorting key, maintaining sort order.
      *
      * Example:

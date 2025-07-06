@@ -76,6 +76,22 @@ val upperCase = sequence.mapValues { it.uppercase() }
 // Results in: [(1 to "A"), (2 to "B")]
 ```
 
+## Filtering
+
+Sorted sequences can be filtered by key and by value, while preserving their sort order:
+
+```kotlin
+val sequence = sequenceOf("a1", "b2", "c3").assertSortedBy { it.first() }
+
+// Filter by key
+val filteredByKey = sequence.filterByKey { it == 'b' }
+// Results in: ["b2"]
+
+// Filter by value
+val filteredByValue = sequence.filterByValue { it.last() > '1' }
+// Results in: ["b2", "c3"]
+```
+
 ## Grouping
 
 Implemented for both `SortedSequence` and `SortedKeyValueSequence`:

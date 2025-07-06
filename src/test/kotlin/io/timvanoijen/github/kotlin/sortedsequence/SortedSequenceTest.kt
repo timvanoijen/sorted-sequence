@@ -191,6 +191,27 @@ class SortedSequenceTest {
     }
 
     @Test
+    fun `filterByKey works correctly`() {
+        val sequence = sequenceOf(1, 2, 3).assertSorted()
+        val filtered = sequence.filterByKey { it % 2 == 0 }
+        assertEquals(listOf(2), filtered.toList())
+    }
+
+    @Test
+    fun `filterByValue works correctly`() {
+        val sequence = sequenceOf("a1", "b2", "c3").assertSortedBy { it.first() }
+        val filtered = sequence.filterByValue { it.last() > '1' }
+        assertEquals(listOf("b2", "c3"), filtered.toList())
+    }
+
+    @Test
+    fun `filter works correctly`() {
+        val sequence = sequenceOf("a1", "b2", "c3").assertSortedBy { it.first() }
+        val filtered = sequence.filter { it.last() > '1' }
+        assertEquals(listOf("b2", "c3"), filtered.toList())
+    }
+
+    @Test
     fun `distinctByKey works correctly`() {
         val sequence = sequenceOf(1, 1, 2).assertSorted()
         val distinct = sequence.distinctByKey()
