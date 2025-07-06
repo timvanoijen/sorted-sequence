@@ -166,6 +166,19 @@ val merged = seq1.rightOuterJoinByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}$v2" }
 // Results in: ["b2b3", "c4"]
 ```
 
+## Interleaving
+
+A `SortedSequence` or `SortedKeyValueSequence` can be interleaved with another one. 
+This operation combines elements from both sequences, preserving their relative ordering based on keys. 
+When the same key exists in both sequences, both values are included in the result.
+
+```kotlin
+val seq1 = sequenceOf("a1", "b2", "b4").assertSortedBy { it.first() }
+val seq2 = sequenceOf("b3", "c4").assertSortedBy { it.first() }
+val interleaved = seq1.interleaveByKey(seq2)
+// Results in: ["a1", "b2", "b3", "b4", "c4"]
+```
+
 ## Error Handling
 
 The library verifies that sequences are properly sorted and throws exceptions if they're not:

@@ -205,6 +205,22 @@ class SortedSequenceTest {
     }
 
     @Test
+    fun `interleaveByKey works correctly`() {
+        val seq1 = sequenceOf("a1", "b2", "b4").assertSortedBy { it.first() }
+        val seq2 = sequenceOf("b3", "c4").assertSortedBy { it.first() }
+        val interleaved = seq1.interleaveByKey(seq2)
+        assertEquals(listOf("a1", "b2", "b3", "b4", "c4"), interleaved.toList())
+    }
+
+    @Test
+    fun `interleaveByKey works correctly with descending sort order`() {
+        val seq1 = sequenceOf("c1", "b2").assertSortedBy(DESCENDING) { it.first() }
+        val seq2 = sequenceOf("b3", "a4").assertSortedBy(DESCENDING) { it.first() }
+        val interleaved = seq1.interleaveByKey(seq2)
+        assertEquals(listOf("c1", "b2", "b3", "a4"), interleaved.toList())
+    }
+
+    @Test
     fun `creating descending SortedSequence with key selector works correctly`() {
         val sequence = sequenceOf("az", "by", "cx").assertSortedBy(DESCENDING) { it.last() }
         assertEquals(listOf("az", "by", "cx"), sequence.toList())
