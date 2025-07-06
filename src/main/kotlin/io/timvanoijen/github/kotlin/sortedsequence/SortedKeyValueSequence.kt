@@ -20,7 +20,7 @@ import io.timvanoijen.github.kotlin.sortedsequence.SortOrder.DESCENDING
  * @param TValue The type of values in the sequence
  * @property sortOrder The sort order (ascending/descending) of the sequence
  */
-class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> private constructor(
+class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal constructor(
     private val innerSequence: Sequence<Pair<TKey, TValue>>,
     override val sortOrder: SortOrder,
     private val doVerifySortOrder: Boolean
@@ -30,10 +30,8 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> private constr
         if (!doVerifySortOrder) return innerSequence.iterator()
 
         return iterator {
-            val innerIterator = innerSequence.iterator()
             var lastKey: TKey? = null
-            while (innerIterator.hasNext()) {
-                val (key, value) = innerIterator.next()
+            innerSequence.forEach { (key, value) ->
                 if (lastKey != null) {
                     if ((sortOrder == ASCENDING && lastKey > key) || (sortOrder == DESCENDING && lastKey < key)) {
                         throw SortedSequenceException.SequenceNotSortedException()
@@ -105,9 +103,7 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> private constr
         return sequence {
             var currentKey: TKey? = null
             var currentGroup = mutableListOf<TValue>()
-            val keyValueIterator = iterator()
-            while (keyValueIterator.hasNext()) {
-                val (key, value) = keyValueIterator.next()
+            forEach { (key, value) ->
                 if (currentKey != null && key != currentKey) {
                     yield(currentKey to currentGroup)
                     currentGroup = mutableListOf()

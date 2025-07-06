@@ -21,7 +21,7 @@ import kotlin.collections.iterator
  * @param TValue The type of values in the sequence
  * @property sortOrder The sort order (ascending/descending) of the sequence
  */
-class SortedSequence<TKey : Comparable<TKey>, out TValue> private constructor(
+class SortedSequence<TKey : Comparable<TKey>, out TValue> internal constructor(
     private val innerSortedKeyValueSequence: SortedKeyValueSequence<TKey, TValue>
 ) : SortedKeyValueIteratorProvider<TKey, TValue>, Sequence<TValue> {
 
