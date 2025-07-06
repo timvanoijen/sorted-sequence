@@ -1,5 +1,7 @@
 # Kotlin Sorted Sequences
 
+[![Gradle build](https://github.com/timvanoijen/sorted-sequence/actions/workflows/gradle.yml/badge.svg)](https://github.com/timvanoijen/sorted-sequence/actions/workflows/gradle.yml)
+
 A Kotlin library providing efficient streaming operations on sorted sequences. This library enables operations that are only possible in a streaming fashion when working with sorted data.
 
 ## Installation
