@@ -234,6 +234,27 @@ class SortedKeyValueSequenceTest {
     }
 
     @Test
+    fun `filterByKey works correctly`() {
+        val sequence = sequenceOf(1 to "a", 2 to "b", 3 to "c").assertSorted()
+        val filtered = sequence.filterByKey { it % 2 == 1 }
+        assertEquals(listOf(1 to "a", 3 to "c"), filtered.toList())
+    }
+
+    @Test
+    fun `filterByValue works correctly`() {
+        val sequence = sequenceOf(1 to "a", 2 to "b", 3 to "c").assertSorted()
+        val filtered = sequence.filterByValue { it in "ac" }
+        assertEquals(listOf(1 to "a", 3 to "c"), filtered.toList())
+    }
+
+    @Test
+    fun `filter works correctly`() {
+        val sequence = sequenceOf(1 to "a", 2 to "b", 3 to "c").assertSorted()
+        val filtered = sequence.filter { (key, value) -> key % 2 == 1 && value in "ab" }
+        assertEquals(listOf(1 to "a"), filtered.toList())
+    }
+
+    @Test
     fun `creating descending SortedKeyValueSequence works correctly`() {
         val sequence = sequenceOf(
             3 to "a",
