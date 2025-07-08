@@ -24,7 +24,7 @@ import io.timvanoijen.github.kotlin.sortedsequence.SortedKeyValueSequence.Factor
 fun <TKey : Comparable<TKey>, TValue> SortedKeyValueSequence<TKey, TValue>.interleaveByKey(
     other: SortedKeyValueIteratorProvider<TKey, TValue>
 ): SortedKeyValueSequence<TKey, TValue> {
-    return fullOuterJoinByKey(other) { _, a, b ->
+    return fullOuterZipByKey(other) { _, a, b ->
         listOfNotNull(a, b)
     }.flatMap { (key, values) -> values.map { key to it } }.assumeSorted(sortOrder)
 }

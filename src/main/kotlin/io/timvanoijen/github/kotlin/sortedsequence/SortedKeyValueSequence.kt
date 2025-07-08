@@ -143,7 +143,7 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      * Example:
      * ```
      * val sequence = sequenceOf(1 to "a", 1 to "b", 2 to "c").assertSorted()
-     * val grouped = sequence.groupByKey()
+     * val result = sequence.groupByKey()
      * // Results in: (1 to ["a", "b"], 2 to ["c"])
      * ```
      *
@@ -166,22 +166,22 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
     }
 
     /**
-     * Merges this sequence with another sorted sequence based on matching keys.
+     * Zips this sequence with another sorted sequence based on matching keys.
      *
      * Example:
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val merged = seq1.mergeByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
+     * val result = seq1.zipByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
      * // Results in: (1 to "ax", 2 to "b", 3 to "z")
      * ```
      *
-     * @param other The sequence to merge with
+     * @param other The sequence to zip with
      * @param joinType The type of join to perform (default: FULL_OUTER_JOIN)
      * @param mergeFn Function that defines how to merge values for matching keys
      * @return A new sorted sequence with merged values
      */
-    fun <TValue2, TValueOut>mergeByKey(
+    fun <TValue2, TValueOut>zipByKey(
         other: SortedKeyValueIteratorProvider<TKey, TValue2>,
         joinType: JoinType = FULL_OUTER_JOIN,
         mergeFn: (TKey, TValue?, TValue2?) -> TValueOut
@@ -221,13 +221,13 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
     }
 
     /**
-     * Merges this sequence with another sorted sequence using default pairing of values.
+     * Zips the sequence with another sorted sequence using default pairing of values.
      *
      * Example:
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val merged = seq1.mergeByKey(seq2)
+     * val result = seq1.zipByKey(seq2)
      * // Results in: (1 to ("a" to "x"), 2 to ("b" to null), 3 to (null to "z"))
      * ```
      *
@@ -235,172 +235,172 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      * @param joinType The type of join to perform (default: FULL_OUTER_JOIN)
      * @return A new sorted sequence with paired values
      */
-    fun <TValue2> mergeByKey(
+    fun <TValue2> zipByKey(
         other: SortedKeyValueIteratorProvider<TKey, TValue2>,
         joinType: JoinType = FULL_OUTER_JOIN
-    ): SortedKeyValueSequence<TKey, Pair<TValue?, TValue2?>> = mergeByKey(other, joinType) { _, a, b -> a to b }
+    ): SortedKeyValueSequence<TKey, Pair<TValue?, TValue2?>> = zipByKey(other, joinType) { _, a, b -> a to b }
 
     /**
-     * Performs a full outer join with another sorted sequence.
+     * Performs a full outer zip with another sorted sequence.
      *
      * Example:
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val joined = seq1.fullOuterJoinByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
+     * val result = seq1.fullOuterZipByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
      * // Results in: (1 to "ax", 2 to "b", 3 to "z")
      * ```
      *
-     * @param other The sequence to join with
+     * @param other The sequence to zip with
      * @param mergeFn Function that defines how to merge values for matching keys
      * @return A new sorted sequence with merged values, keeping all keys from both sequences
      */
-    fun <TValue2, TValueOut> fullOuterJoinByKey(
+    fun <TValue2, TValueOut> fullOuterZipByKey(
         other: SortedKeyValueIteratorProvider<TKey, TValue2>,
         mergeFn: (TKey, TValue?, TValue2?) -> TValueOut
     ): SortedKeyValueSequence<TKey, TValueOut> =
-        mergeByKey(other, FULL_OUTER_JOIN, mergeFn)
+        zipByKey(other, FULL_OUTER_JOIN, mergeFn)
 
     /**
-     * Performs a full outer join with another sorted sequence using default pairing of values.
+     * Performs a full outer zip with another sorted sequence using default pairing of values.
      *
      * Example:
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val joined = seq1.fullOuterJoinByKey(seq2)
+     * val result = seq1.fullOuterZipByKey(seq2)
      * // Results in: (1 to ("a" to "x"), 2 to ("b" to null), 3 to (null to "z"))
      * ```
      *
-     * @param other The sequence to join with
+     * @param other The sequence to zip with
      * @return A new sorted sequence with paired values, keeping all keys from both sequences
      */
-    fun <TValue2> fullOuterJoinByKey(
+    fun <TValue2> fullOuterZipByKey(
         other: SortedKeyValueIteratorProvider<TKey, TValue2>
-    ): SortedKeyValueSequence<TKey, Pair<TValue?, TValue2?>> = fullOuterJoinByKey(other) { _, a, b -> a to b }
+    ): SortedKeyValueSequence<TKey, Pair<TValue?, TValue2?>> = fullOuterZipByKey(other) { _, a, b -> a to b }
 
     /**
-     * Performs an inner join with another sorted sequence.
+     * Performs an inner zip with another sorted sequence.
      *
      * Example:
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val joined = seq1.innerJoinByKey(seq2) { key, v1, v2 -> "$v1$v2" }
+     * val result = seq1.innerZipByKey(seq2) { key, v1, v2 -> "$v1$v2" }
      * // Results in: (1 to "ax")
      * ```
      *
-     * @param other The sequence to join with
+     * @param other The sequence to zip with
      * @param mergeFn Function that defines how to merge values for matching keys
      * @return A new sorted sequence with merged values for keys present in both sequences
      */
-    fun <TValue2, TValueOut> innerJoinByKey(
+    fun <TValue2, TValueOut> innerZipByKey(
         other: SortedKeyValueIteratorProvider<TKey, TValue2>,
         mergeFn: (TKey, TValue, TValue2) -> TValueOut
     ): SortedKeyValueSequence<TKey, TValueOut> =
-        mergeByKey(other, INNER_JOIN) { key, a, b -> mergeFn(key, a!!, b!!) }
+        zipByKey(other, INNER_JOIN) { key, a, b -> mergeFn(key, a!!, b!!) }
 
     /**
-     * Performs an inner join with another sorted sequence using default pairing of values.
+     * Performs an inner zip with another sorted sequence using default pairing of values.
      *
      * Example:
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val joined = seq1.innerJoinByKey(seq2)
+     * val result = seq1.innerZipByKey(seq2)
      * // Results in: (1 to ("a" to "x"))
      * ```
      *
-     * @param other The sequence to join with
+     * @param other The sequence to zip with
      * @return A new sorted sequence with paired values for keys present in both sequences
      */
-    fun <TValue2> innerJoinByKey(
+    fun <TValue2> innerZipByKey(
         other: SortedKeyValueIteratorProvider<TKey, TValue2>
-    ): SortedKeyValueSequence<TKey, Pair<TValue, TValue2>> = innerJoinByKey(other) { _, a, b -> a to b }
+    ): SortedKeyValueSequence<TKey, Pair<TValue, TValue2>> = innerZipByKey(other) { _, a, b -> a to b }
 
     /**
-     * Performs a left outer join with another sorted sequence.
+     * Performs a left outer zip with another sorted sequence.
      *
      * Example:
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val joined = seq1.leftOuterJoinByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}$v2" }
+     * val result = seq1.leftOuterZipByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}$v2" }
      * // Results in: (1 to "ax", 2 to "b")
      * ```
      *
-     * @param other The sequence to join with
+     * @param other The sequence to zip with
      * @param mergeFn Function that defines how to merge values for matching keys
      * @return A new sorted sequence with merged values, keeping all keys from this sequence
      */
-    fun <TValue2, TValueOut> leftOuterJoinByKey(
+    fun <TValue2, TValueOut> leftOuterZipByKey(
         other: SortedKeyValueIteratorProvider<TKey, TValue2>,
         mergeFn: (TKey, TValue, TValue2?) -> TValueOut
     ): SortedKeyValueSequence<TKey, TValueOut> =
-        mergeByKey(other, LEFT_OUTER_JOIN) { key, a, b -> mergeFn(key, a!!, b) }
+        zipByKey(other, LEFT_OUTER_JOIN) { key, a, b -> mergeFn(key, a!!, b) }
 
     /**
-     * Performs a left outer join with another sorted sequence using default pairing of values.
+     * Performs a left outer zip with another sorted sequence using default pairing of values.
      *
      * Example:
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val joined = seq1.leftOuterJoinByKey(seq2)
+     * val result = seq1.leftOuterZipByKey(seq2)
      * // Results in: (1 to ("a" to "x"), 2 to ("b" to null))
      * ```
      *
-     * @param other The sequence to join with
+     * @param other The sequence to zip with
      * @return A new sorted sequence with paired values, keeping all keys from this sequence
      */
-    fun <TValue2> leftOuterJoinByKey(
+    fun <TValue2> leftOuterZipByKey(
         other: SortedKeyValueIteratorProvider<TKey, TValue2>
-    ): SortedKeyValueSequence<TKey, Pair<TValue, TValue2?>> = leftOuterJoinByKey(other) { _, a, b -> a to b }
+    ): SortedKeyValueSequence<TKey, Pair<TValue, TValue2?>> = leftOuterZipByKey(other) { _, a, b -> a to b }
 
     /**
-     * Performs a right outer join with another sorted sequence.
+     * Performs a right outer zip with another sorted sequence.
      *
      * Example:
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val joined = seq1.rightOuterJoinByKey(seq2) { key, v1, v2 -> "$v1${v2 ?: ""}" }
+     * val result = seq1.rightOuterZipByKey(seq2) { key, v1, v2 -> "$v1${v2 ?: ""}" }
      * // Results in: (1 to "ax", 3 to "z")
      * ```
      *
-     * @param other The sequence to join with
+     * @param other The sequence to zip with
      * @param mergeFn Function that defines how to merge values for matching keys
      * @return A new sorted sequence with merged values, keeping all keys from other sequence
      */
-    fun <TValue2, TValueOut> rightOuterJoinByKey(
+    fun <TValue2, TValueOut> rightOuterZipByKey(
         other: SortedKeyValueIteratorProvider<TKey, TValue2>,
         mergeFn: (TKey, TValue?, TValue2) -> TValueOut
     ): SortedKeyValueSequence<TKey, TValueOut> =
-        mergeByKey(other, RIGHT_OUTER_JOIN) { key, a, b -> mergeFn(key, a, b!!) }
+        zipByKey(other, RIGHT_OUTER_JOIN) { key, a, b -> mergeFn(key, a, b!!) }
 
     /**
-     * Performs a right outer join with another sorted sequence using default pairing of values.
+     * Performs a right outer zip with another sorted sequence using default pairing of values.
      *
      * Example:
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
      * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val joined = seq1.rightOuterJoinByKey(seq2)
+     * val result = seq1.rightOuterZipByKey(seq2)
      * // Results in: (1 to ("a" to "x"), 3 to (null to "z"))
      * ```
      *
-     * @param other The sequence to join with
+     * @param other The sequence to zip with
      * @return A new sorted sequence with paired values, keeping all keys from other sequence
      */
-    fun <TValue2> rightOuterJoinByKey(
+    fun <TValue2> rightOuterZipByKey(
         other: SortedKeyValueIteratorProvider<TKey, TValue2>
-    ): SortedKeyValueSequence<TKey, Pair<TValue?, TValue2?>> = rightOuterJoinByKey(other) { _, a, b -> a to b }
+    ): SortedKeyValueSequence<TKey, Pair<TValue?, TValue2?>> = rightOuterZipByKey(other) { _, a, b -> a to b }
 
     // Applies a transformation to the sequence into another sequence, assuming the sort order is preserved.
     private fun <TValue2> withSortingPreserved(
         operation: (Sequence<Pair<TKey, TValue>>) -> Sequence<Pair<TKey, TValue2>>
     ): SortedKeyValueSequence<TKey, TValue2> = operation(this).assumeSorted(sortOrder)
-    
+
     companion object Factory {
         /**
          * Creates a [SortedKeyValueSequence] from this sequence, asserting that elements are sorted by their key.
@@ -428,10 +428,4 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
             return SortedKeyValueSequence(this, sortOrder, doVerifySortOrder = false)
         }
     }
-
-    private val <A, B>Pair<A, B>.key: A get() = first
-
-    private val <A, B>Pair<A, B>.value: B get() = second
-
-    private fun <T>Iterator<T>.nextOrNull() = if (hasNext()) next() else null
 }

@@ -22,7 +22,7 @@ While regular Kotlin sequences process elements one by one without knowledge of 
 - Deduplication
 - Range filtering
 - Frequency counting
-- Various types of joins (inner, left outer, right outer, full outer)
+- Various types of zip-/join-merges (inner, left outer, right outer, full outer)
 - Grouping by key
 
 ## Core Components
@@ -112,11 +112,13 @@ val distinct = sequence.distinctByKey()
 // Results in: [2, 1]
 ```
 
-## Join Operations
+## Zip Operations
 
-The library provides efficient streaming join operations between `SortedSequence` and `SortedKeyValueSequence`.
+The library provides efficient streaming zip operations between `SortedSequence` and `SortedKeyValueSequence`.
+Zip operations differ from join operations in their handling of duplicate keys. While join operations create a cartesian
+product for matching keys, zip operations maintain a one-to-one correspondence between the input sequences.
 
-### Full Outer Join
+### Full Outer Zip 
 
 Keeps all keys from both sequences.
 
@@ -125,15 +127,15 @@ val seq1 = sequenceOf("a1", "b2").assertSortedBy { it.first() }
 val seq2 = sequenceOf("b3", "c4").assertSortedBy { it.first() }
 
 // With default pairing
-val joined = seq1.fullOuterJoinByKey(seq2)
+val result = seq1.fullOuterZipByKey(seq2)
 // Results in: [("a1" to null), ("b2" to "b3"), (null to "c4")]
 
 // With custom merge function
-val merged = seq1.fullOuterJoinByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
+val result = seq1.fullOuterZipByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
 // Results in: ["a1", "b2b3", "c4"]
 ```
 
-### Inner Join
+### Inner Zip 
 
 Only keeps keys present in both sequences.
 
@@ -142,15 +144,15 @@ val seq1 = sequenceOf("a1", "b2").assertSortedBy { it.first() }
 val seq2 = sequenceOf("b3", "c4").assertSortedBy { it.first() }
 
 // With default pairing
-val joined = seq1.innerJoinByKey(seq2)
+val result = seq1.innerZipByKey(seq2)
 // Results in: [("b2" to "b3")]
 
 // With custom merge function
-val merged = seq1.innerJoinByKey(seq2) { key, v1, v2 -> "$v1$v2" }
+val result = seq1.innerZipByKey(seq2) { key, v1, v2 -> "$v1$v2" }
 // Results in: ["b2b3"]
 ```
 
-### Left Outer Join
+### Left Outer Zip 
 
 Keeps all keys from the first sequence.
 
@@ -159,15 +161,15 @@ val seq1 = sequenceOf("a1", "b2").assertSortedBy { it.first() }
 val seq2 = sequenceOf("b3", "c4").assertSortedBy { it.first() }
 
 // With default pairing
-val joined = seq1.leftOuterJoinByKey(seq2)
+val result = seq1.leftOuterZipByKey(seq2)
 // Results in: [("a1" to null), ("b2" to "b3")]
 
 // With custom merge function
-val merged = seq1.leftOuterJoinByKey(seq2) { key, v1, v2 -> "${v1}${v2 ?: ""}" }
+val result = seq1.leftOuterZipByKey(seq2) { key, v1, v2 -> "${v1}${v2 ?: ""}" }
 // Results in: ["a1", "b2b3"]
 ```
 
-### Right Outer Join
+### Right Outer Zip 
 
 Keeps all keys from the second sequence.
 
@@ -176,11 +178,11 @@ val seq1 = sequenceOf("a1", "b2").assertSortedBy { it.first() }
 val seq2 = sequenceOf("b3", "c4").assertSortedBy { it.first() }
 
 // With default pairing
-val joined = seq1.rightOuterJoinByKey(seq2)
+val result = seq1.rightOuterZipByKey(seq2)
 // Results in: [("b2" to "b3"), (null to "c4")]
 
 // With custom merge function
-val merged = seq1.rightOuterJoinByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}$v2" }
+val result = seq1.rightOuterZipByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}$v2" }
 // Results in: ["b2b3", "c4"]
 ```
 
@@ -208,7 +210,7 @@ val notSorted = sequenceOf(3, 1, 2).assertSorted()
 // This will throw SortedSequenceException.InvalidSortOrderException
 val seq1 = sequenceOf(1, 2, 3).assertSorted()
 val seq2 = sequenceOf(3, 2, 1).assertSorted(SortOrder.DESCENDING)
-seq1.mergeByKey(seq2)
+seq1.zipByKey(seq2)
 ```
 
 ## License
