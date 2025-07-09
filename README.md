@@ -4,6 +4,8 @@
 
 A Kotlin library providing efficient streaming operations on sorted sequences. This library enables operations that are only possible in a streaming fashion when working with sorted data.
 
+For all details, see the [API-docs](https://timvanoijen.github.io/sorted-sequence)
+
 ## Installation
 
 Add the dependency to your project:
