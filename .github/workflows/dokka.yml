@@ -20,7 +20,7 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build with Gradle
-        run: ./gradlew dokkaHtmlMultiModule
+        run: ./gradlew dokkaHtml
 
       - name: Deploy to gh-pages
         uses: peaceiris/actions-gh-pages@v3
