@@ -186,6 +186,103 @@ val result = seq1.rightOuterZipByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}$v2" }
 // Results in: ["b2b3", "c4"]
 ```
 
+## Join Operations
+
+The library also provides efficient streaming join operations between `SortedSequence` and `SortedKeyValueSequence`.
+Unlike zip operations, join operations create a cartesian product for matching keys, combining each value from the first sequence with each value from the second sequence that shares the same key.
+
+### Full Outer Join
+
+Keeps all keys from both sequences, creating combinations of all matching values.
+
+```kotlin
+val seq1 = sequenceOf("1a", "2b", "2c").assertSortedBy { it.first() }
+val seq2 = sequenceOf("2x", "2y", "3z").assertSortedBy { it.first() }
+
+// With default pairing
+val result = seq1.fullOuterJoinByKey(seq2)
+// Results in: [
+//   ("1a" to null),
+//   ("2b" to "2x"),
+//   ("2b" to "2y"),
+//   ("2c" to "2x"),
+//   ("2c" to "2y"),
+//   (null to "3z")
+// ]
+
+// With custom merge function
+val result = seq1.fullOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
+// Results in: ["1a", "2b2x", "2b2y", "2c2x", "2c2y", "3z"]
+```
+
+### Inner Join
+
+Only keeps keys present in both sequences, creating combinations of all matching values.
+
+```kotlin
+val seq1 = sequenceOf("1a", "2b", "2c").assertSortedBy { it.first() }
+val seq2 = sequenceOf("2x", "2y", "3z").assertSortedBy { it.first() }
+
+// With default pairing
+val result = seq1.innerJoinByKey(seq2)
+// Results in: [
+//   ("2b" to "2x"),
+//   ("2b" to "2y"),
+//   ("2c" to "2x"),
+//   ("2c" to "2y")
+// ]
+
+// With custom merge function
+val result = seq1.innerJoinByKey(seq2) { _, v1, v2 -> "$v1$v2" }
+// Results in: ["2b2x", "2b2y", "2c2x", "2c2y"]
+```
+
+### Left Outer Join
+
+Keeps all keys from the first sequence, creating combinations with matching values from the second sequence.
+
+```kotlin
+val seq1 = sequenceOf("1a", "2b", "2c").assertSortedBy { it.first() }
+val seq2 = sequenceOf("2x", "2y", "3z").assertSortedBy { it.first() }
+
+// With default pairing
+val result = seq1.leftOuterJoinByKey(seq2)
+// Results in: [
+//   ("1a" to null),
+//   ("2b" to "2x"),
+//   ("2b" to "2y"),
+//   ("2c" to "2x"),
+//   ("2c" to "2y")
+// ]
+
+// With custom merge function
+val result = seq1.leftOuterJoinByKey(seq2) { _, v1, v2 -> "$v1${v2 ?: ""}" }
+// Results in: ["1a", "2b2x", "2b2y", "2c2x", "2c2y"]
+```
+
+### Right Outer Join
+
+Keeps all keys from the second sequence, creating combinations with matching values from the first sequence.
+
+```kotlin
+val seq1 = sequenceOf("1a", "2b", "2c").assertSortedBy { it.first() }
+val seq2 = sequenceOf("2x", "2y", "3z").assertSortedBy { it.first() }
+
+// With default pairing
+val result = seq1.rightOuterJoinByKey(seq2)
+// Results in: [
+//   ("2b" to "2x"),
+//   ("2b" to "2y"),
+//   ("2c" to "2x"),
+//   ("2c" to "2y"),
+//   (null to "3z")
+// ]
+
+// With custom merge function
+val result = seq1.rightOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}$v2" }
+// Results in: ["2b2x", "2b2y", "2c2x", "2c2y", "3z"]
+```
+
 ## Interleaving
 
 A `SortedSequence` or `SortedKeyValueSequence` can be interleaved with another one. 
