@@ -41,7 +41,7 @@ class SortedKeyValueSequenceTest {
                 2 to ("b" to "x"),
                 2 to ("b" to "y"),
                 2 to ("c" to "x"),
-                2 to ("c" to "y"),
+                2 to ("c" to "y")
             ),
             result3.toList()
         )
@@ -60,7 +60,7 @@ class SortedKeyValueSequenceTest {
                 2 to ("b" to "x"),
                 2 to ("b" to "y"),
                 2 to ("c" to "x"),
-                2 to ("c" to "y"),
+                2 to ("c" to "y")
             ),
             result5.toList()
         )
@@ -145,7 +145,7 @@ class SortedKeyValueSequenceTest {
         assertEquals(
             listOf(
                 2 to ("b" to "x"),
-                2 to ("c" to "y"),
+                2 to ("c" to "y")
             ),
             result3.toList()
         )
@@ -162,7 +162,7 @@ class SortedKeyValueSequenceTest {
             listOf(
                 1 to ("a" to null),
                 2 to ("b" to "x"),
-                2 to ("c" to "y"),
+                2 to ("c" to "y")
             ),
             result5.toList()
         )

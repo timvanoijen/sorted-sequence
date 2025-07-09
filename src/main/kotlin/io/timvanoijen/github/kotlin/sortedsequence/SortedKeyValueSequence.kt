@@ -69,7 +69,13 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      * ```
      * val sequence = sequenceOf(1 to "a", 2 to "b", 3 to "c").assertSorted()
      * val filtered = sequence.filterByKey { it > 1 }
-     * assertEquals(listOf(2 to "b", 3 to "c"), filtered.toList())
+     * assertEquals(
+     *   listOf(
+     *     2 to "b",
+     *     3 to "c"
+     *   ),
+     *   filtered.toList()
+     * )
      * ```
      *
      * @param filterFn The predicate to test values against
@@ -120,7 +126,13 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      * ```
      * val sequence = sequenceOf(1 to "a", 1 to "b", 2 to "c").assertSorted()
      * val distinct = sequence.distinctByKey()
-     * assertEquals(listOf(1 to "a", 2 to "c"), distinct.toList())
+     * assertEquals(
+     *   listOf(
+     *     1 to "a",
+     *     2 to "c"
+     *   ),
+     *   distinct.toList()
+     * )
      * ```
      *
      * @return A new sorted sequence with duplicate keys removed
@@ -144,7 +156,13 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      * ```
      * val sequence = sequenceOf(1 to "a", 1 to "b", 2 to "c").assertSorted()
      * val result = sequence.groupByKey()
-     * assertEquals(listOf(1 to listOf("a", "b"), 2 to listOf("c")), result.toList())
+     * assertEquals(
+     *   listOf(
+     *     1 to listOf("a", "b"),
+     *     2 to listOf("c")
+     *   ),
+     *   result.toList()
+     * )
      * ```
      *
      * @return A new sorted sequence with grouped values
@@ -168,16 +186,20 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
     /**
      * Performs a join between two sorted sequences based on matching keys.
      *
-     * This is the core join operation that other join types (inner, outer, etc.) delegate to.
-     * It handles the combining of values from both sequences based on the specified join type.
-     *
      * Example:
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
      * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
-     * val result = seq1.fullOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
+     * val result = seq1.joinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
      * assertEquals(
-     *   listOf(1 to "a", 2 to "bx", 2 to "by", 2 to "cx", 2 to "cy", 3 to "z"),
+     *   listOf(
+     *     1 to "a",
+     *     2 to "bx",
+     *     2 to "by",
+     *     2 to "cx",
+     *     2 to "cy",
+     *     3 to "z"
+     *   ),
      *   result2.toList()
      * )
      * ```
@@ -207,7 +229,7 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      * ```
      * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
      * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
-     * val result = seq1.fullOuterJoinByKey(seq2)
+     * val result = seq1.joinByKey(seq2)
      * assertEquals(
      *   listOf(
      *     1 to ("a" to null),
@@ -230,7 +252,6 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
         joinType: JoinType = FULL_OUTER_JOIN
     ): SortedKeyValueSequence<TKey, Pair<TValue?, TValue2?>> = zipByKey(other, joinType) { _, a, b -> a to b }
 
-
     /**
      * Performs a full outer join with another sorted sequence.
      *
@@ -240,7 +261,14 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
      * val result = seq1.fullOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
      * assertEquals(
-     *   listOf(1 to "a", 2 to "bx", 2 to "by", 2 to "cx", 2 to "cy", 3 to "z"),
+     *   listOf(
+     *     1 to "a",
+     *     2 to "bx",
+     *     2 to "by",
+     *     2 to "cx",
+     *     2 to "cy",
+     *     3 to "z"
+     *   ),
      *   result.toList()
      * )
      * ```
@@ -291,7 +319,12 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
      * val result = seq1.innerJoinByKey(seq2) { _, v1, v2 -> "$v1$v2" }
      * assertEquals(
-     *   listOf(2 to "bx", 2 to "by", 2 to "cx", 2 to "cy"),
+     *   listOf(
+     *     2 to "bx",
+     *     2 to "by",
+     *     2 to "cx",
+     *     2 to "cy"
+     *   ),
      *   result.toList()
      * )
      * ```
@@ -340,7 +373,13 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
      * val result = seq1.leftOuterJoinByKey(seq2) { _, v1, v2 -> "$v1${v2 ?: ""}" }
      * assertEquals(
-     *   listOf(1 to "a", 2 to "bx", 2 to "by", 2 to "cx", 2 to "cy"),
+     *   listOf(
+     *     1 to "a",
+     *     2 to "bx",
+     *     2 to "by",
+     *     2 to "cx",
+     *     2 to "cy"
+     *   ),
      *   result.toList()
      * )
      * ```
@@ -390,7 +429,13 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
      * val result = seq1.rightOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}$v2" }
      * assertEquals(
-     *   listOf(2 to "bx", 2 to "by", 2 to "cx", 2 to "cy", 3 to "z"),
+     *   listOf(
+     *     2 to "bx",
+     *     2 to "by",
+     *     2 to "cx",
+     *     2 to "cy",
+     *     3 to "z"
+     *   ),
      *   result.toList()
      * )
      * ```
@@ -437,10 +482,18 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      *
      * Example:
      * ```
-     * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-     * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val result = seq1.zipByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
-     * // Results in: (1 to "ax", 2 to "b", 3 to "z")
+     * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+     * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
+     * val result = seq1.zipByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
+     * assertEquals(
+     *   listOf(
+     *     1 to "a",
+     *     2 to "bx",
+     *     2 to "cy",
+     *     3 to "z"
+     *   ),
+     *   result2.toList()
+     * )
      * ```
      *
      * @param other The sequence to zip with
@@ -492,10 +545,18 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      *
      * Example:
      * ```
-     * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-     * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
+     * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+     * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
      * val result = seq1.zipByKey(seq2)
-     * // Results in: (1 to ("a" to "x"), 2 to ("b" to null), 3 to (null to "z"))
+     * assertEquals(
+     *   listOf(
+     *     1 to ("a" to null),
+     *     2 to ("b" to "x"),
+     *     2 to ("c" to "y"),
+     *     3 to (null to "z")
+     *   ),
+     *   result.toList()
+     * )
      * ```
      *
      * @param other The sequence to merge with
@@ -512,10 +573,18 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      *
      * Example:
      * ```
-     * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-     * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val result = seq1.fullOuterZipByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
-     * assertEquals(listOf(1 to "ax", 2 to "b", 3 to "z"), result.toList())
+     * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+     * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
+     * val result = seq1.fullOuterZipByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
+     * assertEquals(
+     *   listOf(
+     *     1 to "a",
+     *     2 to "bx",
+     *     2 to "cy",
+     *     3 to "z"
+     *   ),
+     *   result.toList()
+     * )
      * ```
      *
      * @param other The sequence to zip with
@@ -533,10 +602,18 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      *
      * Example:
      * ```
-     * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-     * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
+     * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+     * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
      * val result = seq1.fullOuterZipByKey(seq2)
-     * assertEquals(listOf(1 to ("a" to "x"), 2 to ("b" to null), 3 to (null to "z")), result.toList())
+     * assertEquals(
+     *   listOf(
+     *     1 to ("a" to null),
+     *     2 to ("b" to "x"),
+     *     2 to ("c" to "y"),
+     *     3 to (null to "z")
+     *   ),
+     *   result.toList()
+     * )
      * ```
      *
      * @param other The sequence to zip with
@@ -551,10 +628,16 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      *
      * Example:
      * ```
-     * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-     * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val result = seq1.innerZipByKey(seq2) { key, v1, v2 -> "$v1$v2" }
-     * assertEquals(listOf(1 to ("a" to "x")), result.toList())
+     * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+     * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
+     * val result = seq1.innerZipByKey(seq2) { _, v1, v2 -> "$v1$v2" }
+     * assertEquals(
+     *   listOf(
+     *     2 to "bx",
+     *     2 to "cy"
+     *   ),
+     *   result.toList()
+     * )
      * ```
      *
      * @param other The sequence to zip with
@@ -572,10 +655,16 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      *
      * Example:
      * ```
-     * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-     * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
+     * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+     * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
      * val result = seq1.innerZipByKey(seq2)
-     * assertEquals(listOf(1 to ("a" to "x")), result.toList())
+     * assertEquals(
+     *   listOf(
+     *     2 to ("b" to "x"),
+     *     2 to ("c" to "y"),
+     *   ),
+     *   result.toList()
+     * )
      * ```
      *
      * @param other The sequence to zip with
@@ -590,10 +679,17 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      *
      * Example:
      * ```
-     * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-     * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val result = seq1.leftOuterZipByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}$v2" }
-     * assertEquals(listOf(1 to ("a" to "x"), 2 to ("b" to null)), result.toList())
+     * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+     * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
+     * val result = seq1.leftOuterZipByKey(seq2) { _, v1, v2 -> "$v1${v2 ?: ""}" }
+     * assertEquals(
+     *   listOf(
+     *     1 to "a",
+     *     2 to "bx",
+     *     2 to "cy"
+     *   ),
+     *   result.toList()
+     * )
      * ```
      *
      * @param other The sequence to zip with
@@ -611,10 +707,17 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      *
      * Example:
      * ```
-     * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-     * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
+     * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+     * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
      * val result = seq1.leftOuterZipByKey(seq2)
-     * assertEquals(listOf(1 to ("a" to "x"), 2 to ("b" to null)), result.toList())
+     * assertEquals(
+     *   listOf(
+     *     1 to ("a" to null),
+     *     2 to ("b" to "x"),
+     *     2 to ("c" to "y"),
+     *   ),
+     *   result.toList()
+     * )
      * ```
      *
      * @param other The sequence to zip with
@@ -629,10 +732,17 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      *
      * Example:
      * ```
-     * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-     * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-     * val result = seq1.rightOuterZipByKey(seq2) { key, v1, v2 -> "$v1${v2 ?: ""}" }
-     * assertEquals(listOf(1 to "ax", 3 to "z"), result.toList())
+     * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+     * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
+     * val result = seq1.rightOuterZipByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}$v2" }
+     * assertEquals(
+     *   listOf(
+     *     2 to "bx",
+     *     2 to "cy",
+     *     3 to "z"
+     *   ),
+     *   result.toList()
+     * )
      * ```
      *
      * @param other The sequence to zip with
@@ -650,10 +760,17 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
      *
      * Example:
      * ```
-     * val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-     * val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
+     * val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+     * val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
      * val result = seq1.rightOuterZipByKey(seq2)
-     * assertEquals(listOf(1 to ("a" to "x"), 3 to (null to "z")), result.toList())
+     * assertEquals(
+     *   listOf(
+     *     2 to ("b" to "x"),
+     *     2 to ("c" to "y"),
+     *     3 to (null to "z")
+     *   ),
+     *   result.toList()
+     * )
      * ```
      *
      * @param other The sequence to zip with
