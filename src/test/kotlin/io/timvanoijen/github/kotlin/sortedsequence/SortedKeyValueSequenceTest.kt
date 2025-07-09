@@ -10,35 +10,199 @@ import org.junit.jupiter.api.assertThrows
 class SortedKeyValueSequenceTest {
 
     @Test
-    fun `zip by key works correctly`() {
-        val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-        val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-        val result = seq1.zipByKey(seq2)
-        assertEquals(listOf(1 to ("a" to "x"), 2 to ("b" to null), 3 to (null to "z")), result.toList())
+    fun `join operations work correctly`() {
+        val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+        val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
+
+        // full outer
+        val result = seq1.fullOuterJoinByKey(seq2)
+        assertEquals(
+            listOf(
+                1 to ("a" to null),
+                2 to ("b" to "x"),
+                2 to ("b" to "y"),
+                2 to ("c" to "x"),
+                2 to ("c" to "y"),
+                3 to (null to "z")
+            ),
+            result.toList()
+        )
+
+        val result2 = seq1.fullOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
+        assertEquals(
+            listOf(1 to "a", 2 to "bx", 2 to "by", 2 to "cx", 2 to "cy", 3 to "z"),
+            result2.toList()
+        )
+
+        // inner join
+        val result3 = seq1.innerJoinByKey(seq2)
+        assertEquals(
+            listOf(
+                2 to ("b" to "x"),
+                2 to ("b" to "y"),
+                2 to ("c" to "x"),
+                2 to ("c" to "y"),
+            ),
+            result3.toList()
+        )
+
+        val result4 = seq1.innerJoinByKey(seq2) { _, v1, v2 -> "$v1$v2" }
+        assertEquals(
+            listOf(2 to "bx", 2 to "by", 2 to "cx", 2 to "cy"),
+            result4.toList()
+        )
+
+        // left outer join
+        val result5 = seq1.leftOuterJoinByKey(seq2)
+        assertEquals(
+            listOf(
+                1 to ("a" to null),
+                2 to ("b" to "x"),
+                2 to ("b" to "y"),
+                2 to ("c" to "x"),
+                2 to ("c" to "y"),
+            ),
+            result5.toList()
+        )
+
+        val result6 = seq1.leftOuterJoinByKey(seq2) { _, v1, v2 -> "$v1${v2 ?: ""}" }
+        assertEquals(
+            listOf(1 to "a", 2 to "bx", 2 to "by", 2 to "cx", 2 to "cy"),
+            result6.toList()
+        )
+
+        // right outer join
+        val result7 = seq1.rightOuterJoinByKey(seq2)
+        assertEquals(
+            listOf(
+                2 to ("b" to "x"),
+                2 to ("b" to "y"),
+                2 to ("c" to "x"),
+                2 to ("c" to "y"),
+                3 to (null to "z")
+            ),
+            result7.toList()
+        )
+
+        val result8 = seq1.rightOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}$v2" }
+        assertEquals(
+            listOf(2 to "bx", 2 to "by", 2 to "cx", 2 to "cy", 3 to "z"),
+            result8.toList()
+        )
+
+        // descending
+        val seq1Desc = sequenceOf(2 to "c", 2 to "b", 1 to "a").assertSorted(DESCENDING)
+        val seq2Desc = sequenceOf(3 to "z", 2 to "y", 2 to "x").assertSorted(DESCENDING)
+        val result9 = seq1Desc.fullOuterJoinByKey(seq2Desc)
+        assertEquals(
+            listOf(
+                3 to (null to "z"),
+                2 to ("c" to "y"),
+                2 to ("c" to "x"),
+                2 to ("b" to "y"),
+                2 to ("b" to "x"),
+                1 to ("a" to null)
+            ),
+            result9.toList()
+        )
     }
 
     @Test
-    fun `zip by key works correctly with descending sort order`() {
-        val seq1 = sequenceOf(2 to "b", 1 to "a").assertSorted(DESCENDING)
-        val seq2 = sequenceOf(3 to "z", 1 to "x").assertSorted(DESCENDING)
-        val result = seq1.zipByKey(seq2, JoinType.INNER_JOIN)
-        assertEquals(listOf(1 to ("a" to "x")), result.toList())
+    fun `join fails with incompatible sort orders`() {
+        val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted(ASCENDING)
+        val seq2 = sequenceOf(2 to "x", 1 to "y").assertSorted(DESCENDING)
+
+        assertThrows<SortedSequenceException.InvalidSortOrderException> {
+            seq1.joinByKey(seq2).toList()
+        }
     }
 
     @Test
-    fun `zip by key with merge function works correctly`() {
-        val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-        val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-        val result = seq1.zipByKey(seq2, JoinType.RIGHT_OUTER_JOIN) { _, v1, v2 -> "${v1 ?: ""}$v2" }
-        assertEquals(listOf(1 to "ax", 3 to "z"), result.toList())
-    }
+    fun `zip operations work correctly`() {
+        val seq1 = sequenceOf(1 to "a", 2 to "b", 2 to "c").assertSorted()
+        val seq2 = sequenceOf(2 to "x", 2 to "y", 3 to "z").assertSorted()
 
-    @Test
-    fun `zip by key with merge function works correctly with descending sort order`() {
-        val seq1 = sequenceOf(2 to "b", 1 to "a").assertSorted(DESCENDING)
-        val seq2 = sequenceOf(3 to "z", 1 to "x").assertSorted(DESCENDING)
-        val result = seq1.zipByKey(seq2, JoinType.LEFT_OUTER_JOIN) { _, v1, v2 -> "$v1${v2 ?: ""}" }
-        assertEquals(listOf(2 to "b", 1 to "ax"), result.toList())
+        // full outer
+        val result = seq1.fullOuterZipByKey(seq2)
+        assertEquals(
+            listOf(
+                1 to ("a" to null),
+                2 to ("b" to "x"),
+                2 to ("c" to "y"),
+                3 to (null to "z")
+            ),
+            result.toList()
+        )
+
+        val result2 = seq1.fullOuterZipByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
+        assertEquals(
+            listOf(1 to "a", 2 to "bx", 2 to "cy", 3 to "z"),
+            result2.toList()
+        )
+
+        // inner join
+        val result3 = seq1.innerZipByKey(seq2)
+        assertEquals(
+            listOf(
+                2 to ("b" to "x"),
+                2 to ("c" to "y"),
+            ),
+            result3.toList()
+        )
+
+        val result4 = seq1.innerZipByKey(seq2) { _, v1, v2 -> "$v1$v2" }
+        assertEquals(
+            listOf(2 to "bx", 2 to "cy"),
+            result4.toList()
+        )
+
+        // left outer join
+        val result5 = seq1.leftOuterZipByKey(seq2)
+        assertEquals(
+            listOf(
+                1 to ("a" to null),
+                2 to ("b" to "x"),
+                2 to ("c" to "y"),
+            ),
+            result5.toList()
+        )
+
+        val result6 = seq1.leftOuterZipByKey(seq2) { _, v1, v2 -> "$v1${v2 ?: ""}" }
+        assertEquals(
+            listOf(1 to "a", 2 to "bx", 2 to "cy"),
+            result6.toList()
+        )
+
+        // right outer join
+        val result7 = seq1.rightOuterZipByKey(seq2)
+        assertEquals(
+            listOf(
+                2 to ("b" to "x"),
+                2 to ("c" to "y"),
+                3 to (null to "z")
+            ),
+            result7.toList()
+        )
+
+        val result8 = seq1.rightOuterZipByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}$v2" }
+        assertEquals(
+            listOf(2 to "bx", 2 to "cy", 3 to "z"),
+            result8.toList()
+        )
+
+        // descending
+        val seq1Desc = sequenceOf(2 to "c", 2 to "b", 1 to "a").assertSorted(DESCENDING)
+        val seq2Desc = sequenceOf(3 to "z", 2 to "y", 2 to "x").assertSorted(DESCENDING)
+        val result9 = seq1Desc.fullOuterZipByKey(seq2Desc)
+        assertEquals(
+            listOf(
+                3 to (null to "z"),
+                2 to ("c" to "y"),
+                2 to ("b" to "x"),
+                1 to ("a" to null)
+            ),
+            result9.toList()
+        )
     }
 
     @Test
@@ -49,134 +213,6 @@ class SortedKeyValueSequenceTest {
         assertThrows<SortedSequenceException.InvalidSortOrderException> {
             seq1.zipByKey(seq2).toList()
         }
-    }
-
-    @Test
-    fun `full outer zip works correctly`() {
-        val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-        val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-        val result = seq1.fullOuterZipByKey(seq2)
-        assertEquals(listOf(1 to ("a" to "x"), 2 to ("b" to null), 3 to (null to "z")), result.toList())
-    }
-
-    @Test
-    fun `full outer zip works correctly with descending sort order`() {
-        val seq1 = sequenceOf(2 to "b", 1 to "a").assertSorted(DESCENDING)
-        val seq2 = sequenceOf(3 to "z", 1 to "x").assertSorted(DESCENDING)
-        val result = seq1.fullOuterZipByKey(seq2)
-        assertEquals(listOf(3 to (null to "z"), 2 to ("b" to null), 1 to ("a" to "x")), result.toList())
-    }
-
-    @Test
-    fun `full outer zip with merge function works correctly`() {
-        val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-        val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-        val result = seq1.fullOuterZipByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
-        assertEquals(listOf(1 to "ax", 2 to "b", 3 to "z"), result.toList())
-    }
-
-    @Test
-    fun `full outer zip with merge function works correctly with descending sort order`() {
-        val seq1 = sequenceOf(2 to "b", 1 to "a").assertSorted(DESCENDING)
-        val seq2 = sequenceOf(3 to "z", 1 to "x").assertSorted(DESCENDING)
-        val result = seq1.fullOuterZipByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}${v2 ?: ""}" }
-        assertEquals(listOf(3 to "z", 2 to "b", 1 to "ax"), result.toList())
-    }
-
-    @Test
-    fun `inner zip works correctly`() {
-        val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-        val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-        val result = seq1.innerZipByKey(seq2)
-        assertEquals(listOf(1 to ("a" to "x")), result.toList())
-    }
-
-    @Test
-    fun `inner zip works correctly with descending sort order`() {
-        val seq1 = sequenceOf(2 to "b", 1 to "a").assertSorted(DESCENDING)
-        val seq2 = sequenceOf(3 to "z", 1 to "x").assertSorted(DESCENDING)
-        val result = seq1.innerZipByKey(seq2)
-        assertEquals(listOf(1 to ("a" to "x")), result.toList())
-    }
-
-    @Test
-    fun `inner zip with merge function works correctly`() {
-        val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-        val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-        val result = seq1.innerZipByKey(seq2) { _, v1, v2 -> "$v1$v2" }
-        assertEquals(listOf(1 to "ax"), result.toList())
-    }
-
-    @Test
-    fun `inner zip with merge function works correctly with descending sort order`() {
-        val seq1 = sequenceOf(2 to "b", 1 to "a").assertSorted(DESCENDING)
-        val seq2 = sequenceOf(3 to "z", 1 to "x").assertSorted(DESCENDING)
-        val result = seq1.innerZipByKey(seq2) { _, v1, v2 -> "$v1$v2" }
-        assertEquals(listOf(1 to "ax"), result.toList())
-    }
-
-    @Test
-    fun `left outer zip works correctly`() {
-        val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-        val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-        val result = seq1.leftOuterZipByKey(seq2)
-        assertEquals(listOf(1 to ("a" to "x"), 2 to ("b" to null)), result.toList())
-    }
-
-    @Test
-    fun `left outer zip works correctly with descending sort order`() {
-        val seq1 = sequenceOf(2 to "b", 1 to "a").assertSorted(DESCENDING)
-        val seq2 = sequenceOf(3 to "z", 1 to "x").assertSorted(DESCENDING)
-        val result = seq1.leftOuterZipByKey(seq2)
-        assertEquals(listOf(2 to ("b" to null), 1 to ("a" to "x")), result.toList())
-    }
-
-    @Test
-    fun `left outer zip with merge function works correctly`() {
-        val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-        val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-        val result = seq1.leftOuterZipByKey(seq2) { _, v1, v2 -> "$v1${v2 ?: ""}" }
-        assertEquals(listOf(1 to "ax", 2 to "b"), result.toList())
-    }
-
-    @Test
-    fun `left outer zip with merge function works correctly with descending sort order`() {
-        val seq1 = sequenceOf(2 to "b", 1 to "a").assertSorted(DESCENDING)
-        val seq2 = sequenceOf(3 to "z", 1 to "x").assertSorted(DESCENDING)
-        val result = seq1.leftOuterZipByKey(seq2) { _, v1, v2 -> "$v1${v2 ?: ""}" }
-        assertEquals(listOf(2 to "b", 1 to "ax"), result.toList())
-    }
-
-    @Test
-    fun `right outer zip works correctly`() {
-        val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-        val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-        val result = seq1.rightOuterZipByKey(seq2)
-        assertEquals(listOf(1 to ("a" to "x"), 3 to (null to "z")), result.toList())
-    }
-
-    @Test
-    fun `right outer zip works correctly with descending sort order`() {
-        val seq1 = sequenceOf(2 to "b", 1 to "a").assertSorted(DESCENDING)
-        val seq2 = sequenceOf(3 to "z", 1 to "x").assertSorted(DESCENDING)
-        val result = seq1.rightOuterZipByKey(seq2)
-        assertEquals(listOf(3 to (null to "z"), 1 to ("a" to "x")), result.toList())
-    }
-
-    @Test
-    fun `right outer zip with merge function works correctly`() {
-        val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted()
-        val seq2 = sequenceOf(1 to "x", 3 to "z").assertSorted()
-        val result = seq1.rightOuterZipByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}$v2" }
-        assertEquals(listOf(1 to "ax", 3 to "z"), result.toList())
-    }
-
-    @Test
-    fun `right outer zip with merge function works correctly with descending sort order`() {
-        val seq1 = sequenceOf(2 to "b", 1 to "a").assertSorted(DESCENDING)
-        val seq2 = sequenceOf(3 to "z", 1 to "x").assertSorted(DESCENDING)
-        val result = seq1.rightOuterZipByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}$v2" }
-        assertEquals(listOf(3 to "z", 1 to "ax"), result.toList())
     }
 
     @Test
