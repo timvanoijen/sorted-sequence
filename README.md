@@ -2,9 +2,12 @@
 
 [![Gradle build](https://github.com/timvanoijen/sorted-sequence/actions/workflows/gradle.yml/badge.svg)](https://github.com/timvanoijen/sorted-sequence/actions/workflows/gradle.yml)
 
-A Kotlin library providing efficient streaming operations on sorted sequences. This library enables operations that are only possible in a streaming fashion when working with sorted data.
+A Kotlin library providing efficient streaming operations on sequences that are explicitly verified to be sorted. By
+asserting and maintaining sort order guarantees, this library enables specialized operations that are only possible when
+working with properly sorted data.
 
 For all details, see the [API-docs](https://timvanoijen.github.io/sorted-sequence)
+
 
 ## Installation
 
@@ -19,7 +22,10 @@ dependencies {
 
 ## Introduction
 
-While regular Kotlin sequences process elements one by one without knowledge of the full sequence, some operations require the sequence to be sorted to work efficiently in a streaming manner. This library provides specialized wrappers and operations for sorted sequences, enabling efficient:
+While regular Kotlin sequences process elements one by one without knowledge of the full sequence, some operations
+require the sequence to be sorted to work efficiently in a streaming manner. This library explicitly verifies that
+sequences are properly sorted and maintains this guarantee throughout all operations. By ensuring sequences are sorted,
+we can provide specialized operations that are more efficient than their unsorted counterparts, enabling:
 
 - Deduplication
 - Range filtering
@@ -29,12 +35,13 @@ While regular Kotlin sequences process elements one by one without knowledge of 
 
 ## Core Components
 
-The library provides two main sequence types that serve different purposes:
+The library provides two main sequence types that enforce and maintain sorting guarantees:
 
-- `SortedSequence`: a sequence of elements. The sort key is implicit - derived from the element itself. Operations on
-  this type must preserve the sorting order of the derived keys, limiting the kinds of transformations possible.
-- `SortedKeyValueSequence`: a sequence of explicit key-value pairs, where the keys determine the sort order. Since keys 
-  and values are separate, values can be freely transformed while maintaining the sort order defined by the keys.
+- `SortedSequence`: a sequence of elements that is explicitly verified to be sorted. The sort key is implicit - derived
+  from the element itself. Operations on this type must preserve the sorting order of the derived keys, limiting the
+  kinds of transformations possible.
+- `SortedKeyValueSequence`: a sequence of explicit key-value pairs that is verified to be sorted by keys. Since keys and
+  values are separate, values can be freely transformed while maintaining the verified sort order defined by the keys.
 
 ### SortedSequence
 
@@ -120,7 +127,7 @@ The library provides efficient streaming zip operations between `SortedSequence`
 Zip operations differ from join operations in their handling of duplicate keys. While join operations create a cartesian
 product for matching keys, zip operations maintain a one-to-one correspondence between the input sequences.
 
-### Full Outer Zip 
+### Full Outer Zip
 
 Keeps all keys from both sequences.
 
@@ -137,7 +144,7 @@ val result = seq1.fullOuterZipByKey(seq2) { key, v1, v2 -> "${v1 ?: ""}${v2 ?: "
 // Results in: ["a1", "b2b3", "c4"]
 ```
 
-### Inner Zip 
+### Inner Zip
 
 Only keeps keys present in both sequences.
 
@@ -154,7 +161,7 @@ val result = seq1.innerZipByKey(seq2) { key, v1, v2 -> "$v1$v2" }
 // Results in: ["b2b3"]
 ```
 
-### Left Outer Zip 
+### Left Outer Zip
 
 Keeps all keys from the first sequence.
 
@@ -171,7 +178,7 @@ val result = seq1.leftOuterZipByKey(seq2) { key, v1, v2 -> "${v1}${v2 ?: ""}" }
 // Results in: ["a1", "b2b3"]
 ```
 
-### Right Outer Zip 
+### Right Outer Zip
 
 Keeps all keys from the second sequence.
 
@@ -287,8 +294,8 @@ val result = seq1.rightOuterJoinByKey(seq2) { _, v1, v2 -> "${v1 ?: ""}$v2" }
 
 ## Interleaving
 
-A `SortedSequence` or `SortedKeyValueSequence` can be interleaved with another one. 
-This operation combines elements from both sequences, preserving their relative ordering based on keys. 
+A `SortedSequence` or `SortedKeyValueSequence` can be interleaved with another one.
+This operation combines elements from both sequences, preserving their relative ordering based on keys.
 When the same key exists in both sequences, both values are included in the result.
 
 ```kotlin
