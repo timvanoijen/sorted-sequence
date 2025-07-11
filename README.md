@@ -1,6 +1,6 @@
 # Kotlin Sorted Sequences
 
-[![Gradle build](https://github.com/timvanoijen/sorted-sequence/actions/workflows/gradle.yml/badge.svg)](https://github.com/timvanoijen/sorted-sequence/actions/workflows/gradle.yml)
+[![Gradle build](https://github.com/timvanoijen/sorted-sequence/actions/workflows/gradle.yml/badge.svg)](https://github.com/timvanoijen/sorted-sequence/actions/workflows/gradle.yml) [![Maven Central](https://img.shields.io/maven-central/v/io.github.timvanoijen.kotlin/sorted-sequence.svg)](https://search.maven.org/artifact/io.github.timvanoijen.kotlin/sorted-sequence)
 
 A Kotlin library providing efficient streaming operations on sequences that are explicitly verified to be sorted. By
 asserting and maintaining sort order guarantees, this library enables specialized operations that are only possible when
