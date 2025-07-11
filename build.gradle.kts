@@ -42,7 +42,7 @@ mavenPublishing {
     )
 
     pom {
-        name.set("Kotlin Sorted Seuences")
+        name.set("Kotlin Sorted Sequences")
         description.set("A Kotlin library for sorted sequences.")
         inceptionYear.set("2025")
         url.set("https://github.com/timvanoijen/sorted-sequence/")
