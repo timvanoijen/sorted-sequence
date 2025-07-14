@@ -100,6 +100,19 @@ class SortedSequenceTest {
     }
 
     @Test
+    fun `zip terminates early when one sequence is empty`() {
+        val seqInfinite = generateSequence(1) { it + 1 }.assertSorted()
+        val seqFinite = seqInfinite.take(2).assertSorted()
+
+        val expected = listOf(1 to 1, 2 to 2)
+
+        assertEquals(expected, seqInfinite.innerZipByKey(seqFinite).toList())
+        assertEquals(expected, seqFinite.innerZipByKey(seqFinite).toList())
+        assertEquals(expected, seqInfinite.rightOuterZipByKey(seqFinite).toList())
+        assertEquals(expected, seqFinite.leftOuterZipByKey(seqInfinite).toList())
+    }
+
+    @Test
     fun `join operations work correctly`() {
         val seq1 = sequenceOf("1a", "2b", "2c").assertSortedBy { it.first() }
         val seq2 = sequenceOf("2x", "2y", "3z").assertSortedBy { it.first() }
@@ -195,6 +208,19 @@ class SortedSequenceTest {
             ),
             result9.toList()
         )
+    }
+
+    @Test
+    fun `join terminates early when one sequence is empty`() {
+        val seqInfinite = generateSequence(1) { it + 1 }.assertSorted()
+        val seqFinite = seqInfinite.take(2).assertSorted()
+
+        val expected = listOf(1 to 1, 2 to 2)
+
+        assertEquals(expected, seqInfinite.innerJoinByKey(seqFinite).toList())
+        assertEquals(expected, seqFinite.innerJoinByKey(seqFinite).toList())
+        assertEquals(expected, seqInfinite.rightOuterZipByKey(seqFinite).toList())
+        assertEquals(expected, seqFinite.leftOuterZipByKey(seqInfinite).toList())
     }
 
     @Test
