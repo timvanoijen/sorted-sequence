@@ -522,7 +522,8 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
                     INNER_JOIN -> el1 != null && el2 != null
                     LEFT_OUTER_JOIN -> el1 != null
                     RIGHT_OUTER_JOIN -> el2 != null
-                }) {
+                }
+            ) {
                 val pair = when {
                     el1 == null -> null to el2
                     el2 == null -> el1 to null
