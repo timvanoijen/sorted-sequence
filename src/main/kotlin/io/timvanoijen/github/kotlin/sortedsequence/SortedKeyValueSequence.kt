@@ -6,6 +6,8 @@ import io.timvanoijen.github.kotlin.sortedsequence.JoinType.LEFT_OUTER_JOIN
 import io.timvanoijen.github.kotlin.sortedsequence.JoinType.RIGHT_OUTER_JOIN
 import io.timvanoijen.github.kotlin.sortedsequence.SortOrder.ASCENDING
 import io.timvanoijen.github.kotlin.sortedsequence.SortOrder.DESCENDING
+import io.timvanoijen.github.kotlin.sortedsequence.exceptions.InvalidSortOrderException
+import io.timvanoijen.github.kotlin.sortedsequence.exceptions.SequenceNotSortedException
 
 /**
  * Represents a sequence of key-value pairs that are sorted by key.
@@ -34,7 +36,7 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
             innerSequence.forEach { (key, value) ->
                 if (lastKey != null) {
                     if ((sortOrder == ASCENDING && lastKey > key) || (sortOrder == DESCENDING && lastKey < key)) {
-                        throw SortedSequenceException.SequenceNotSortedException()
+                        throw SequenceNotSortedException()
                     }
                 }
                 lastKey = key
@@ -506,7 +508,7 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
         joinType: JoinType = FULL_OUTER_JOIN,
         mergeFn: (TKey, TValue?, TValue2?) -> TValueOut
     ): SortedKeyValueSequence<TKey, TValueOut> {
-        if (sortOrder != other.sortOrder) throw SortedSequenceException.InvalidSortOrderException()
+        if (sortOrder != other.sortOrder) throw InvalidSortOrderException()
 
         return sequence {
             val iterator1 = keyValueIterator()

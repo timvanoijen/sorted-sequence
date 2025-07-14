@@ -3,6 +3,8 @@ package io.timvanoijen.github.kotlin.sortedsequence
 import io.timvanoijen.github.kotlin.sortedsequence.SortOrder.ASCENDING
 import io.timvanoijen.github.kotlin.sortedsequence.SortOrder.DESCENDING
 import io.timvanoijen.github.kotlin.sortedsequence.SortedKeyValueSequence.Factory.assertSorted
+import io.timvanoijen.github.kotlin.sortedsequence.exceptions.InvalidSortOrderException
+import io.timvanoijen.github.kotlin.sortedsequence.exceptions.SequenceNotSortedException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -112,7 +114,7 @@ class SortedKeyValueSequenceTest {
         val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted(ASCENDING)
         val seq2 = sequenceOf(2 to "x", 1 to "y").assertSorted(DESCENDING)
 
-        assertThrows<SortedSequenceException.InvalidSortOrderException> {
+        assertThrows<InvalidSortOrderException> {
             seq1.joinByKey(seq2).toList()
         }
     }
@@ -210,7 +212,7 @@ class SortedKeyValueSequenceTest {
         val seq1 = sequenceOf(1 to "a", 2 to "b").assertSorted(ASCENDING)
         val seq2 = sequenceOf(2 to "x", 1 to "y").assertSorted(DESCENDING)
 
-        assertThrows<SortedSequenceException.InvalidSortOrderException> {
+        assertThrows<InvalidSortOrderException> {
             seq1.zipByKey(seq2).toList()
         }
     }
@@ -316,7 +318,7 @@ class SortedKeyValueSequenceTest {
             2 to "c"
         ).assertSorted(ASCENDING)
 
-        assertThrows<SortedSequenceException.SequenceNotSortedException> {
+        assertThrows<SequenceNotSortedException> {
             sequence.toList()
         }
     }

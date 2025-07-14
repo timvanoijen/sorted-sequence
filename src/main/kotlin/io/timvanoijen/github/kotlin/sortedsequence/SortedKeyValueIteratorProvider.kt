@@ -1,16 +1,18 @@
 package io.timvanoijen.github.kotlin.sortedsequence
 
+import io.timvanoijen.github.kotlin.sortedsequence.exceptions.SequenceNotSortedException
+
 interface SortedKeyValueIteratorProvider<TKey : Comparable<TKey>, out TValue> {
 
     /**
      * Returns an iterator over the key-value pairs in this sequence while verifying the sort order.
      *
      * The iterator validates that keys are in the correct order (ascending or descending) as it
-     * traverses the sequence. If a key is found to be out of order, a [SortedSequenceException.SequenceNotSortedException]
+     * traverses the sequence. If a key is found to be out of order, a [SequenceNotSortedException]
      * is thrown.
      *
      * @return An iterator that yields key-value pairs in sorted order
-     * @throws SortedSequenceException.SequenceNotSortedException if the sequence is not properly sorted
+     * @throws SequenceNotSortedException if the sequence is not properly sorted
      */
     fun keyValueIterator(): Iterator<Pair<TKey, TValue>>
 
