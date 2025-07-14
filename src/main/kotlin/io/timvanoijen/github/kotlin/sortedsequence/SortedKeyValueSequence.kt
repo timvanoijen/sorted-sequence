@@ -516,7 +516,13 @@ class SortedKeyValueSequence<TKey : Comparable<TKey>, out TValue> internal const
 
             var el1 = iterator1.nextOrNull()
             var el2 = iterator2.nextOrNull()
-            while (el1 != null || el2 != null) {
+            while (
+                when (joinType) {
+                    FULL_OUTER_JOIN -> el1 != null || el2 != null
+                    INNER_JOIN -> el1 != null && el2 != null
+                    LEFT_OUTER_JOIN -> el1 != null
+                    RIGHT_OUTER_JOIN -> el2 != null
+                }) {
                 val pair = when {
                     el1 == null -> null to el2
                     el2 == null -> el1 to null
