@@ -4,6 +4,7 @@ import io.timvanoijen.github.kotlin.sortedsequence.SortOrder.ASCENDING
 import io.timvanoijen.github.kotlin.sortedsequence.SortOrder.DESCENDING
 import io.timvanoijen.github.kotlin.sortedsequence.SortedSequence.Factory.assertSorted
 import io.timvanoijen.github.kotlin.sortedsequence.SortedSequence.Factory.assertSortedBy
+import io.timvanoijen.github.kotlin.sortedsequence.exceptions.SequenceNotSortedException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -277,7 +278,7 @@ class SortedSequenceTest {
     fun `exception is thrown when sequence is not properly sorted`() {
         val sequence = sequenceOf(1, 3, 2).assertSorted(ASCENDING)
 
-        assertThrows<SortedSequenceException.SequenceNotSortedException> {
+        assertThrows<SequenceNotSortedException> {
             sequence.toList()
         }
     }
