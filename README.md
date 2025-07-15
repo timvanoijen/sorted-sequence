@@ -310,10 +310,10 @@ val interleaved = seq1.interleaveByKey(seq2)
 The library verifies that sequences are properly sorted and throws exceptions if they're not:
 
 ```kotlin
-// This will throw SortedSequenceException.SequenceNotSortedException
+// This will throw SequenceNotSortedException
 val notSorted = sequenceOf(3, 1, 2).assertSorted()
 
-// This will throw SortedSequenceException.InvalidSortOrderException
+// This will throw InvalidSortOrderException
 val seq1 = sequenceOf(1, 2, 3).assertSorted()
 val seq2 = sequenceOf(3, 2, 1).assertSorted(SortOrder.DESCENDING)
 seq1.zipByKey(seq2)
